@@ -1,0 +1,91 @@
+/* Custom Variables for the NexCart Theme */
+:root {
+    --primary-orange: #ff6b00;
+    --dark-teal: #002d2d;
+    --soft-bg: #f8fafc;
+}
+
+body {
+    background-color: var(--soft-bg);
+    scroll-behavior: smooth;
+}
+
+/* Glassmorphism effect for the navigation on scroll */
+.nav-scrolled {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Category Circle Hover Effect */
+.category-item img {
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.category-item:hover img {
+    transform: scale(1.1);
+    border-color: var(--primary-orange);
+}
+
+/* Flash Sale Card Hover */
+.product-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom Scrollbar for a premium look */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-orange);
+}
+
+/* Seller Card Hover Effects */
+.group:hover h4 {
+    color: #ff6b00; /* Turns the name orange on hover */
+}
+
+.group img {
+    transition: transform 0.5s ease;
+}
+
+.group:hover img {
+    transform: scale(1.1);
+}
+/* Smooth search bar expansion animation */
+.group input:focus {
+    max-width: 100%;
+    transform: scale(1.02);
+}
+
+/* Icon pulse effect on hover */
+.group:hover i {
+    cursor: pointer;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+/* When the container (group) is hovered, target the search-icon */
+.group:hover .search-icon {
+    color: #f97316; /* Tailwind orange-500 */
+    transform: scale(1.2) rotate(10deg);
+}
+
+/* Optional: Smooth transition for the input itself */
+.group input:focus {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}

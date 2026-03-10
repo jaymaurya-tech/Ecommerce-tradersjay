@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+
+    <div class="bg-white rounded-3xl shadow-2xl flex max-w-4xl w-full overflow-hidden mx-4">
+        <div class="w-full md:w-1/2 p-8 md:p-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">VERIFICATION CODE</h2>
+            <p class="text-gray-500 text-sm mb-8">Your verification code is on its way! Check your email.</p>
+
+            <form method="POST" action="{% url 'verify_otp' %}" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <input type="text" name="otp" maxlength="6" pattern="\d{6}" 
+                           placeholder="Enter 6-digit code" 
+                           class="w-full text-center text-2xl tracking-widest p-4 border-2 border-gray-300 rounded-xl focus:border-orange-500 outline-none" 
+                           required>
+                </div>
+
+                <button type="submit" class="w-full bg-purple-700 text-white py-3 rounded-xl font-bold hover:bg-purple-800 transition">
+                    Verify & Login
+                </button>
+            </form>
+
+            <p class="text-center text-sm text-gray-600 mt-6">
+                Didn't receive the OTP? 
+                <a href="{% url 'resend_otp' %}" class="text-purple-600 font-bold hover:underline">Resend</a>
+            </p>
+        </div>
+
+        <div class="hidden md:block w-1/2 bg-purple-100 p-12 flex flex-col justify-center items-center">
+            <img src="{% static 'images/otp.jpg' %}" alt="Verification">
+        </div>
+    </div>
+</body>
+</html>

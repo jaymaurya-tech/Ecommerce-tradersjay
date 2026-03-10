@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Jay Traders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+
+    <div class="bg-white rounded-3xl shadow-2xl flex max-w-4xl w-full overflow-hidden mx-4">
+        <div class="hidden md:block w-1/2 bg-dark-green p-12 text-white flex flex-col justify-center">
+            <h2 class="text-4xl font-bold mb-6 text-orange-500">Jay Traders</h2>
+            <p class="text-lg text-gray-300">Welcome back! Log in to access your personalized shopping experience.</p>
+           <div class="login-container">
+    <div class="flex justify-center items-center py-4">
+    <img src="{% static 'images/logo.png' %}"
+         alt="Logo" 
+         class="max-h-60 w-auto ">
+</div>
+ <div class="mt-8 border-l-4 border-orange-500 pl-4 italic text-sm text-gray-400">
+                "Quality is remembered long after the price is forgotten."
+            </div>
+</div>
+           
+        </div>
+
+        <div class="w-full md:w-1/2 p-8 md:p-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Login</h2>
+            <p class="text-gray-500 text-sm mb-8">Please enter your details.</p>
+            
+            {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+            <div class="p-4 mb-2 text-sm font-bold text-red-600 bg-red-100 rounded-lg">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+            <form method="post" action="{% url 'login' %}" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input type="email" name="email" placeholder="name@company.com" class="w-full mt-1 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none">
+                </div>
+               <div class="relative">
+    <label class="block text-sm font-medium text-gray-700">Password</label>
+    <div class="relative mt-1">
+        <input type="password" name="password" id="password" placeholder="••••••••" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none pr-12">
+        <button type="button" onclick="togglePassword()" class="absolute right-4 top-3 text-gray-400 hover:text-orange-500">
+            <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+        </button>
+    </div>
+</div>
+
+<div class="mt-6 space-y-3">
+    <button button id="google-login-btn" class="w-full flex items-center justify-center border border-gray-300 py-3 rounded-xl hover:bg-gray-50 transition">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" class="w-5 h-5 mr-3" alt="Google">
+        Continue with Google
+    </button>
+    <button button id="apple-login-btn" class="w-full flex items-center justify-center border border-gray-300 py-3 rounded-xl hover:bg-gray-50 transition">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" class="w-5 h-5 mr-3" alt="Apple">
+        Continue with Apple
+    </button>
+</div>
+                <div class="flex items-center justify-between text-sm">
+                    <label class="flex items-center"><input type="checkbox" class="mr-2"> Remember me</label>
+                    <a href="#" class="text-orange-600 font-semibold hover:underline">Forgot password?</a>
+                </div>
+                <button type="submit" class="w-full bg-dark-green text-white py-3 rounded-xl font-bold hover:bg-black transition">Sign In</button>
+            </form>
+            <p class="text-center text-sm text-gray-600 mt-8">
+                Don't have an account? <a href="/register/" class="text-orange-600 font-bold hover:underline">Sign up for free</a>
+            </p>
+            
+        </div>
+        
+    </div>
+<script>
+function togglePassword() {
+    const passwordField = document.getElementById("password");
+    const type = passwordField.getAttribute("type") === "password" ? "text" : "password";
+    passwordField.setAttribute("type", type);
+    
+    // Optional: You could change the icon here as well
+}
+</script>
+<script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

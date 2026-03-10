@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile | Jay Traders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+
+    <div class="bg-white rounded-3xl shadow-2xl flex max-w-2xl w-full overflow-hidden mx-4 p-8">
+        <div class="w-full">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Edit Profile</h2>
+            
+            {% for message in messages %}
+                <div class="mb-4 text-green-600 font-bold">{{ message }}</div>
+            {% endfor %}
+
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input type="text" name="username" value="{{ user.username }}" class="w-full mt-1 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" name="email" value="{{ user.email }}" class="w-full mt-1 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Phone</label>
+                    <input type="tel" name="phone" value="{{ user.profile.phone }}" class="w-full mt-1 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Address</label>
+                    <textarea name="address" class="w-full mt-1 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none">{{ user.profile.address }}</textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold hover:bg-orange-600 transition mt-4">
+                    Save Changes
+                </button>
+            </form>
+
+            <a href="{% url 'logout' %}" class="block text-center text-sm text-red-500 mt-6 hover:underline">Logout</a>
+        </div>
+    </div>
+</body>
+</html>
