@@ -1,91 +1,153 @@
-/* Custom Variables for the NexCart Theme */
+/* 1. SETUP & RESET */
 :root {
     --primary-orange: #ff6b00;
     --dark-teal: #002d2d;
     --soft-bg: #f8fafc;
+    /* Responsive padding: 1rem on mobile, scales to 2.5rem on desktop */
+    --container-gap: clamp(1rem, 5vw, 2.5rem);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
     background-color: var(--soft-bg);
     scroll-behavior: smooth;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden; /* Prevents the horizontal scroll "failure" */
+    line-height: 1.5;
 }
 
-/* Glassmorphism effect for the navigation on scroll */
+/* 2. THE FLUID CONTAINER */
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--container-gap);
+}
+
+/* 3. RESPONSIVE NAVIGATION */
 .nav-scrolled {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); /* Critical for Apple Safari */
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
 }
 
-/* Category Circle Hover Effect */
-.category-item img {
-    transition: transform 0.3s ease, border-color 0.3s ease;
-    border: 2px solid transparent;
+/* 4. THE "NEVER-BREAK" GRID SYSTEM */
+/* This automatically decides how many columns fit based on screen width */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem 0;
 }
 
-.category-item:hover img {
-    transform: scale(1.1);
-    border-color: var(--primary-orange);
+.category-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    justify-items: center;
 }
 
-/* Flash Sale Card Hover */
-.product-card {
+/* 5. FLEXIBLE SEARCH BAR */
+.group {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 500px; /* Limits width on desktop */
+    position: relative;
+}
+
+.group input {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-}
-
-/* Custom Scrollbar for a premium look */
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-orange);
-}
-
-/* Seller Card Hover Effects */
-.group:hover h4 {
-    color: #ff6b00; /* Turns the name orange on hover */
-}
-
-.group img {
-    transition: transform 0.5s ease;
-}
-
-.group:hover img {
-    transform: scale(1.1);
-}
-/* Smooth search bar expansion animation */
 .group input:focus {
-    max-width: 100%;
-    transform: scale(1.02);
+    outline: none;
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
 }
 
-/* Icon pulse effect on hover */
-.group:hover i {
-    cursor: pointer;
-    animation: pulse 1s infinite;
+/* 6. INTERACTIVE ELEMENTS (Desktop Only Hover) */
+@media (hover: hover) {
+    .category-item img {
+        transition: transform 0.3s ease, border-color 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .category-item:hover img {
+        transform: scale(1.1);
+        border-color: var(--primary-orange);
+    }
+
+    .product-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .group:hover h4 {
+        color: var(--primary-orange);
+    }
+
+    .group:hover .search-icon {
+        color: #f97316;
+        transform: scale(1.2) rotate(10deg);
+        transition: all 0.3s ease;
+    }
 }
 
+/* 7. PULSE ANIMATION */
 @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.2); }
     100% { transform: scale(1); }
 }
-/* When the container (group) is hovered, target the search-icon */
-.group:hover .search-icon {
-    color: #f97316; /* Tailwind orange-500 */
-    transform: scale(1.2) rotate(10deg);
+
+.group:hover i {
+    cursor: pointer;
+    animation: pulse 1s infinite;
 }
 
-/* Optional: Smooth transition for the input itself */
-.group input:focus {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+/* 8. CUSTOM PREMIUM SCROLLBAR (Hidden on Mobile) */
+@media (min-width: 1024px) {
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: var(--soft-bg);
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-orange);
+    }
+}
+
+/* 9. FIX FOR SMALLER PHONES (iPhone SE, etc) */
+@media (max-width: 380px) {
+    .product-grid {
+        grid-template-columns: 1fr; /* Stack cards vertically on tiny screens */
+    }
+    
+    :root {
+        --container-gap: 0.75rem;
+    }
 }
