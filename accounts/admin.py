@@ -2,7 +2,9 @@ from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from django_otp.admin import OTPAdminSite
 from .models import Profile
-
+from products.models import Product, Category, Brand
+from orders.models import Order
+from customers.models import Customer
 class OTPAdmin(OTPAdminSite):
     login_template = 'login.html'
     def login(self, request, extra_context=None):
@@ -19,3 +21,8 @@ class OTPAdmin(OTPAdminSite):
 
 admin_site = OTPAdmin(name='OTPAdmin')
 admin_site.register(Profile)
+admin_site.register(Product)
+admin_site.register(Category)
+admin_site.register(Brand)
+admin_site.register(Order)
+admin_site.register(Customer)

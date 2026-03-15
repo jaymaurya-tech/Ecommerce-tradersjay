@@ -22,6 +22,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django_otp',
     'django_otp.plugins.otp_totp',
     'django.contrib.admin',
@@ -31,7 +32,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
-    'shop',
+    'products',
+    'orders',
+    'customers',
 ]
 
 MIDDLEWARE = [
@@ -114,6 +117,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_REDIRECT_URL = 'home'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -123,3 +128,26 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASS')
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_USER')
+
+JAZZMIN_SETTINGS = {
+
+    "site_title": "Jay Traders Admin",
+    "site_header": "Jay Traders",
+    "site_brand": "Jay Traders",
+    "site_logo": "images\logo.png",
+    "welcome_sign": "Welcome to Jay Traders Admin",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+}
+
+
+JAZZMIN_UI_TWEAKS = {
+
+    "theme": "cosmo",
+    "navbar": "navbar-light",
+    "accent": "accent-primary",
+    "sidebar": "sidebar-dark-primary",
+    "navbar_fixed": True,
+    "sidebar_nav_compact_style": True,
+
+}
