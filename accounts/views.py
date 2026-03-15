@@ -186,5 +186,11 @@ def profile_view(request):
     return render(request, 'profile.html', {'user': request.user})
 
 
+from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 
+class CustomResetView(PasswordResetView):
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['email'].widget.attrs.update({'class': 'w-full border p-2 rounded-full focus:outline-orange-500'})
+        return form
 

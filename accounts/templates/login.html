@@ -72,7 +72,7 @@
 </div>
                 <div class="flex items-center justify-between text-sm">
                     <label class="flex items-center"><input type="checkbox" class="mr-2"> Remember me</label>
-                    <a href="#" class="text-orange-600 font-semibold hover:underline">Forgot password?</a>
+                    <a href="{% url 'password_reset' %}" class="text-orange-600 font-semibold hover:underline">Forgot password?</a>
                 </div>
                 <button type="submit" class="w-full bg-dark-green text-white py-3 rounded-xl font-bold hover:bg-black transition">Sign In</button>
             </form>
