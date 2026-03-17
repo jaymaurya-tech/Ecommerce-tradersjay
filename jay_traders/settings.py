@@ -138,6 +138,13 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "Welcome to Jay Traders Admin",
     "show_sidebar": True,
     "navigation_expanded": True,
+    "topmenu_links": [
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"model": "auth.User"},
+    ],
+    "show_ui_builder": True,
+    "search_model": "auth.User",  # Or your main Product/Order model
+    "global_search_models": ["auth.User", "products.Product", "orders.Order", "customers.Customer"],
 }
 
 
