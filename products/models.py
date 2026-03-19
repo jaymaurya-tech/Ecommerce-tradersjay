@@ -15,7 +15,7 @@ class Brand(models.Model):
 class Category(models.Model):
 
     name = models.CharField(max_length=200)
-
+    category_image = models.ImageField(upload_to="categories/", blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -63,6 +63,8 @@ class ProductAdmin(admin.ModelAdmin):
         "discount_price",
     )
 
+    list_editable = ("category","price", "stock", "discount_price")
+
     list_filter = (
         "brand",
         "category",
@@ -96,10 +98,24 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = (
 
         "id",
+        "category_image_preview",
         "name",
     )
 
+    list_editable = ("name",)
+
     search_fields = ("name",)
+
+    readonly_fields = ("category_image_preview",)
+
+    def category_image_preview(self, obj):
+        if obj.cat_image:
+            return format_html(
+                '<img src="{}" width="50" style="border-radius:6px;" />',
+                obj.cat_image.url
+            )
+        return "No Image"
+    category_image_preview.short_description = "Category Image"
 
 
 class BrandAdmin(admin.ModelAdmin):
@@ -111,6 +127,8 @@ class BrandAdmin(admin.ModelAdmin):
     )
 
     search_fields = ("name",)
+
+    list_editable = ("name",)
 
     readonly_fields = ("logo_preview",)
 
