@@ -60,10 +60,10 @@ class ProductAdmin(admin.ModelAdmin):
         "stock",
         "created",
         "updated",
-        "discount_price",
+        "old_price",
     )
 
-    list_editable = ("category","price", "stock", "discount_price")
+    list_editable = ("category","price", "stock", "old_price")
 
     list_filter = (
         "brand",

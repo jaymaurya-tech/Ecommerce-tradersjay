@@ -25,5 +25,5 @@ urlpatterns = [
     path('', include('accounts.urls')), 
    # This connects app
     path('', views.home, name='home'),
-  
+    path('cart/', include('cart.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

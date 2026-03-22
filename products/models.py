@@ -50,7 +50,15 @@ class Product(models.Model):
 
     updated = models.DateTimeField(auto_now=True)
 
-    discount_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    rating = models.IntegerField(default=5)
+    
+    @property
+    def discount_percentage(self):
+        if self.old_price and self.old_price > self.price:
+            discount = ((self.old_price - self.price) / self.old_price) * 100
+            return int(discount)
+        return None
 
     def __str__(self):
         return self.name

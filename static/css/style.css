@@ -1,153 +1,299 @@
-/* 1. SETUP & RESET */
+/* FLIPKART-INSPIRED ADAPTIVE CSS 
+   Optimized for: Desktop (5-6 cols), Tablet (3 cols), Mobile (2 cols)
+*/
+
 :root {
-    --primary-orange: #ff6b00;
-    --dark-teal: #002d2d;
-    --soft-bg: #f8fafc;
-    /* Responsive padding: 1rem on mobile, scales to 2.5rem on desktop */
-    --container-gap: clamp(1rem, 5vw, 2.5rem);
+    --primary-blue: #2874f0;
+    --primary-orange: #fb641b;
+    --accent-yellow: #ffc200;
+    --bg-gray: #f1f3f6;
+    --white: #ffffff;
+    --text-main: #212121;
+    --text-muted: #878787;
+    --header-height: 64px;
+    --container-gap: clamp(0.5rem, 3vw, 2rem);
 }
 
+/* 1. RESET & BASE STYLES */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    -webkit-tap-highlight-color: transparent; /* Clean touch for mobile */
 }
 
 body {
-    background-color: var(--soft-bg);
-    scroll-behavior: smooth;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    overflow-x: hidden; /* Prevents the horizontal scroll "failure" */
-    line-height: 1.5;
+    background-color: var(--bg-gray);
+    font-family: Roboto, Arial, sans-serif;
+    color: var(--text-main);
+    line-height: 1.4;
+    overflow-x: hidden;
 }
 
-/* 2. THE FLUID CONTAINER */
 .container {
-    width: 100%;
-    max-width: 1400px;
+    max-width: 1248px;
     margin: 0 auto;
     padding: 0 var(--container-gap);
 }
 
-/* 3. RESPONSIVE NAVIGATION */
-.nav-scrolled {
+/* 2. ADAPTIVE HEADER (Sticky) */
+.main-header {
+    background: var(--primary-blue);
     position: sticky;
     top: 0;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px); /* Critical for Apple Safari */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,.1);
 }
 
-/* 4. THE "NEVER-BREAK" GRID SYSTEM */
-/* This automatically decides how many columns fit based on screen width */
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-    gap: 1.5rem;
-    padding: 1.5rem 0;
-}
-
-.category-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 1rem;
-    justify-items: center;
-}
-
-/* 5. FLEXIBLE SEARCH BAR */
-.group {
+.header-inner {
     display: flex;
     align-items: center;
     width: 100%;
-    max-width: 500px; /* Limits width on desktop */
-    position: relative;
+    gap: 1.5rem;
 }
 
-.group input {
+/* 3. FLEXIBLE SEARCH BAR */
+.search-group {
+    flex-grow: 1;
+    max-width: 560px;
+    background: var(--white);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,.23);
+}
+
+.search-group input {
     width: 100%;
-    padding: 10px 15px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.group input:focus {
+    border: none;
     outline: none;
-    border-color: var(--primary-orange);
-    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+    padding: 10px 16px;
+    font-size: 14px;
 }
 
-/* 6. INTERACTIVE ELEMENTS (Desktop Only Hover) */
+.search-icon {
+    padding: 0 12px;
+    color: var(--primary-blue);
+    cursor: pointer;
+}
+
+/* 4. THE "SMART" GRID SYSTEM */
+.product-grid {
+    display: grid;
+    /* Desktop Default: 5 columns */
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin: 1rem 0;
+}
+
+.product-card {
+    background: var(--white);
+    padding: 12px;
+    text-align: center;
+    border-radius: 2px;
+    transition: box-shadow 0.2s;
+    cursor: pointer;
+}
+
+/* 5. INTERACTIVE HOVER (Desktop Only) */
 @media (hover: hover) {
-    .category-item img {
-        transition: transform 0.3s ease, border-color 0.3s ease;
-        border: 2px solid transparent;
+    .product-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+}
+
+/* 6. RESPONSIVE BREAKPOINTS */
+
+/* Tablet (Up to 1024px) */
+@media (max-width: 1024px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Mobile (Up to 768px) - The "Flipkart" Shift */
+@media (max-width: 768px) {
+    :root {
+        --header-height: auto;
     }
 
-    .category-item:hover img {
-        transform: scale(1.1);
-        border-color: var(--primary-orange);
+    .main-header {
+        padding: 8px 0;
+    }
+
+    .header-inner {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .search-group {
+        max-width: 100%; /* Search goes full width on mobile */
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 items side-by-side */
+        gap: 4px; /* Tighter for mobile screens */
     }
 
     .product-card {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 8px;
     }
 
-    .product-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-    }
-
-    .group:hover h4 {
-        color: var(--primary-orange);
-    }
-
-    .group:hover .search-icon {
-        color: #f97316;
-        transform: scale(1.2) rotate(10deg);
-        transition: all 0.3s ease;
+    /* Hide desktop-only elements */
+    .desktop-nav {
+        display: none;
     }
 }
 
-/* 7. PULSE ANIMATION */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
+/* 7. BOTTOM NAVIGATION (Mobile Only) */
+.bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: var(--white);
+    border-top: 1px solid #ddd;
+    height: 56px;
+    z-index: 1000;
 }
 
-.group:hover i {
-    cursor: pointer;
-    animation: pulse 1s infinite;
-}
-
-/* 8. CUSTOM PREMIUM SCROLLBAR (Hidden on Mobile) */
-@media (min-width: 1024px) {
-    ::-webkit-scrollbar {
-        width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-        background: var(--soft-bg);
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-        background: var(--primary-orange);
-    }
-}
-
-/* 9. FIX FOR SMALLER PHONES (iPhone SE, etc) */
-@media (max-width: 380px) {
-    .product-grid {
-        grid-template-columns: 1fr; /* Stack cards vertically on tiny screens */
+@media (max-width: 768px) {
+    .bottom-nav {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
     }
     
-    :root {
-        --container-gap: 0.75rem;
+    body {
+        padding-bottom: 60px; /* Prevents content from hiding behind nav */
     }
 }
+
+/* 8. SCROLLBAR (Desktop Only) */
+@media (min-width: 1025px) {
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-gray); }
+    ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+}
+
+/* ================= FOOTER ================= */
+.footer {
+    background: #111011;
+    color: #ddd;
+    padding: 20px;
+}
+
+.footer-top {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 40px;
+    margin-bottom: 20px;
+}
+
+        .footer-brand h3 {
+            color: white;
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-brand p {
+            font-size: 0.95rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .social-icons a {
+            color: #aaa;
+            margin-right: 12px;
+            font-size: 1.4rem;
+            transition: color 0.3s;
+        }
+
+        .social-icons a:hover {
+            color: var(--primary);
+        }
+
+        .footer-links h4 {
+            color: white;
+            margin-bottom: 1.2rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .newsletter h4 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .newsletter form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .newsletter input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .newsletter button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .newsletter button:hover {
+            background: var(--primary-dark);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #222;
+            padding-top: 25px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .payment-methods img {
+            height: 28px;
+            margin: 0 8px;
+        }
+
+        @media (max-width: 768px) {
+            .footer-top {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .newsletter form {
+                flex-direction: column;
+            }
+        }
