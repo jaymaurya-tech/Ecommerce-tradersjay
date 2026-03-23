@@ -39,12 +39,18 @@ def cart_update(request, product_id):
     cart_item = get_object_or_404(CartItem, cart=cart, product=product)
     
     if request.method == 'POST':
-        quantity = int(request.POST.get('quantity', 1))
-        if quantity > 0:
-            cart_item.quantity = quantity
+        action = request.POST.get('action')
+        if action == 'increase':
+            cart_item.quantity += 1
+        elif action == 'decrease':
+            cart_item.quantity -= 1
+
+        if cart_item.quantity > 0:
             cart_item.save()
         else:
             cart_item.delete()
+        # Alternatively, if you want to set quantity directly:
+       
             
     return redirect('cart_detail')
 
@@ -59,6 +65,8 @@ def cart_remove(request, product_id):
 
 def cart_view(request):
     cart_items = CartItem.objects.filter(user=request.user)
+    for item in cart_items:
+        item.item_total =item.product.price * item.quantity
     subtotal = sum(item.product.price * item.quantity for item in cart_items)
     discount = subtotal * 0.10
     total = subtotal - discount
@@ -68,6 +76,7 @@ def cart_view(request):
         'subtotal': subtotal,
         'discount': discount,
         'total': total,
+
         'shipping_progress': min((subtotal / 50) * 100, 100), # Progress bar %
         'free_shipping_unlocked': subtotal >= 50,
         'amount_to_free_shipping': max(50 - subtotal, 0)
