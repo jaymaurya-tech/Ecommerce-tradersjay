@@ -47,6 +47,11 @@ try:
 except admin.sites.NotRegistered:
     pass
 
+from products.models import Product, ProductImage
+
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 5
 
 
 class ProductAdmin(admin.ModelAdmin):
@@ -58,11 +63,12 @@ class ProductAdmin(admin.ModelAdmin):
         "category",
         "price",
         "stock",
-        "created",
         "updated",
         "old_price",
     )
-
+    
+    inlines = [ProductImageInline]
+    
     list_editable = ("category","price", "stock", "old_price")
 
     list_filter = (
@@ -83,11 +89,9 @@ class ProductAdmin(admin.ModelAdmin):
 
 
     def image_preview(self, obj):
-        if obj.image:
-            return format_html(
-                '<img src="{}" width="50" style="border-radius:6px;" />',
-                obj.image.url
-            )
+        if obj.cover_image:
+            from django.utils.safestring import mark_safe
+            return mark_safe(f'<img src="{obj.cover_image.url}" width="50" />')
         return "No Image"
 
     image_preview.short_description = "Image"
@@ -204,6 +208,7 @@ class OrderItemAdmin(admin.ModelAdmin):
         "price",
     )
  
+
 # 2. Register them using your custom admin_site
 admin_site.register(User, UserAdmin)  # Register the User model to manage users in the admin
 admin_site.register(Profile, ProfileAdmin)

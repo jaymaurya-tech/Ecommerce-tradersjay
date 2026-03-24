@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} | Product Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Hide scrollbar for gallery thumbnails */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .thumb-active { border-color: black !important; border-width: 2px !important; }
+        #main-display { transition: opacity 0.2s ease-in-out; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="sty>lesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="bg-gray-50">
+
+   <nav class="bg-white border-b shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 sm:px-6 py-3">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div class="flex items-center gap-2">
+    <img src="{% static 'images/logo.png' %}" alt="Jay Traders Logo" class="w-8 h-8 object-contain">
+            <h2 class="text-xl sm:text-2xl font-bold text-orange-500 whitespace-nowrap">Jay Traders</h2>
+            
+            <button id="location-trigger" class="flex items-center text-sm text-gray-600 hover:text-orange-500 transition cursor-pointer">
+                <i class="fa-solid fa-location-dot mr-2"></i> 
+                <span id="location-text" class="truncate max-w-[80px] sm:max-w-[100px]">Kanpur, UP</span>
+            </button>
+            
+            </div>
+            <div class="flex-grow order-last sm:order-none w-full max-w-md lg:max-w-lg sm:w-auto mt-2 sm:mt-0 mx-4">
+                <div class="relative w-full">
+                    <input type="text" placeholder="Search products..." class="w-full border border-gray-300 rounded-full py-2 px-4 outline-none focus:border-orange-500 transition">
+                    <i class="fa-solid fa-magnifying-glass absolute right-4 top-3 text-gray-400"></i>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+            <a href="{% url 'cart_detail' %}" class="relative text-xl sm:text-2xl hover:text-orange-500 transition">
+                <i class="fa-solid fa-cart-shopping"></i>
+                {% if global_cart_count > 0 %}
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          {{ global_cart_count }}
+        </span>
+        {% endif %}
+            </a>
+        <div class="flex gap-8 text-xs font-bold uppercase tracking-tighter">
+            <a href="{% url 'home' %}"><i class="fa-solid fa-house"></i></a>
+        </div>
+        </div>
+    </div>
+</nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div class="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
+            
+            <div class="lg:col-span-7 flex flex-col-reverse md:flex-row gap-4">
+                
+                <div class="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto max-h-[500px] no-scrollbar">
+                    <div class="flex-shrink-0 w-20 h-20 border-2 border-black rounded-lg overflow-hidden cursor-pointer thumb-box thumb-active" 
+                         onclick="changeImage('{{ product.cover_image.url }}', this)">
+                        <img src="{{ product.cover_image.url }}" class="w-full h-full object-cover">
+                    </div>
+
+                    {% for item in product.images.all %}
+                    <div class="flex-shrink-0 w-20 h-20 border border-gray-200 rounded-lg overflow-hidden cursor-pointer thumb-box hover:border-gray-400" 
+                         onclick="changeImage('{{ item.image.url }}', this)">
+                        <img src="{{ item.image.url }}" class="w-full h-full object-cover">
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="flex-1 aspect-square bg-white border border-gray-100 rounded-2xl overflow-hidden relative group">
+                    <img id="main-display" src="{{ product.cover_image.url }}" 
+                         class="w-full h-full object-contain p-10">
+                    
+                    {% if product.discount_percentage %}
+                    <span class="absolute top-6 left-6 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                        Save {{ product.discount_percentage }}%
+                    </span>
+                    {% endif %}
+
+                    <div class="absolute inset-y-0 left-4 flex items-center">
+                        <button class="bg-white/80 p-2 rounded-full shadow hover:bg-white">←</button>
+                    </div>
+                    <div class="absolute inset-y-0 right-4 flex items-center">
+                        <button class="bg-white/80 p-2 rounded-full shadow hover:bg-white">→</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 lg:mt-0 lg:col-span-5">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h1 class="text-3xl font-bold tracking-tight text-gray-900">{{ product.name }}</h1>
+                        <p class="text-sm text-gray-500 mt-1">{{ product.category.name }}</p>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <span class="text-yellow-400 font-bold text-lg">★ 4.8</span>
+                        <span class="text-gray-400 text-sm">(121)</span>
+                    </div>
+                </div>
+                
+               <div class="text-right">
+                                        <span class="text-sm font-black">₹{{ product.price }}</span><br>
+                                         {% if product.old_price %}
+                                          <span class="text-sm text-gray-400 line-through ml-2">₹{{ product.old_price }}</span>
+                                         {% endif %}
+                                    </div>
+
+                <div class="mt-8 border-t border-gray-100 pt-8">
+                    <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">About the product</h3>
+                    <div class="mt-4 text-base text-gray-600 leading-relaxed space-y-4">
+                        {{ product.description|linebreaks }}
+                    </div>
+                </div>
+
+                <form class="mt-10" action="{% url 'cart_add' product.id %}" method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-gray-900 uppercase">Select Size</h3>
+                        <a href="#" class="text-sm font-medium text-gray-500 underline">Size guide</a>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-2">
+                        {% for i in "123456" %}
+                        <label class="group relative border rounded-lg py-3 flex items-center justify-center text-sm font-bold uppercase cursor-pointer hover:bg-gray-50 focus:outline-none border-gray-200">
+                            <input type="radio" name="size" value="{{ i }}" class="sr-only">
+                            <span>UK {{ i }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-10 flex flex-col space-y-4">
+                        <button type="submit" class="w-full bg-black text-white rounded-full py-5 text-lg font-bold hover:bg-zinc-800 transition shadow-xl">
+                            Add to Cart
+                        </button>
+                        <button type="button" class="w-full bg-white border border-gray-200 text-black rounded-full py-5 text-lg font-bold hover:border-black transition flex items-center justify-center">
+                            Favorite <span class="ml-2">♡</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-8 grid grid-cols-1 gap-4 border-t border-gray-100 pt-8">
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-gray-100 p-2 rounded-lg">🚚</div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-900">Free Shipping</p>
+                            <p class="text-xs text-gray-500">On orders over $150</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function changeImage(src, element) {
+            const mainImg = document.getElementById('main-display');
+            
+            // Subtle fade out
+            mainImg.style.opacity = '0.4';
+            
+            setTimeout(() => {
+                mainImg.src = src;
+                mainImg.style.opacity = '1';
+            }, 150);
+
+            // Toggle border classes
+            document.querySelectorAll('.thumb-box').forEach(box => {
+                box.classList.remove('thumb-active', 'border-black', 'border-2');
+                box.classList.add('border-gray-200', 'border');
+            });
+            
+            element.classList.add('thumb-active', 'border-black', 'border-2');
+            element.classList.remove('border-gray-200', 'border');
+        }
+    </script>
+</body>
+</html>

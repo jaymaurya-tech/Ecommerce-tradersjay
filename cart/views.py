@@ -18,20 +18,23 @@ def cart_detail(request):
         'total_price': total_price
     })
 
-@login_required
+
 def cart_add(request, product_id):
-    cart, created = Cart.objects.get_or_create(user=request.user)
-    product = get_object_or_404(Product, id=product_id)
+    if not request.user.is_authenticated:
+        return redirect('login')
+    else:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        product = get_object_or_404(Product, id=product_id)
     
     # Check if item already exists in cart to increment quantity
-    cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product)
+        cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product)
     
-    if not item_created:
-        cart_item.quantity += 1
-        cart_item.save()
-        
-    return redirect('cart_detail')
+        if not item_created:
+            cart_item.quantity += 1
+            cart_item.save()
+        return redirect('cart_detail')
 
+    
 @login_required
 def cart_update(request, product_id):
     cart = get_object_or_404(Cart, user=request.user)

@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils.text import slugify
 
 class Brand(models.Model):
 
@@ -15,8 +15,14 @@ class Brand(models.Model):
 class Category(models.Model):
 
     name = models.CharField(max_length=200)
-    category_image = models.ImageField(upload_to="categories/", blank=True, null=True)
+    cat_image = models.ImageField(upload_to="categories/", blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -44,7 +50,7 @@ class Product(models.Model):
 
     description = models.TextField(blank=True)
 
-    image = models.ImageField(upload_to="products/", blank=True, null=True)
+    cover_image = models.ImageField(upload_to='products/covers/', null=True, blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
 
@@ -62,3 +68,11 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+class ProductImage(models.Model):
+    """These are the 4-5 extra images for the details page"""
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='products/gallery/')
+
+    def __str__(self):
+        return f"Image for {self.product.name}"
