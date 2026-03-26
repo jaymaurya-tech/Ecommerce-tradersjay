@@ -86,6 +86,7 @@
                                 <div class="flex justify-between items-end mt-4">
                                     <form action="{% url 'cart_update' item.product.id %}" method="post" class="flex items-center">
                                         {% csrf_token %}
+                                        <input type="hidden" name="size" value="{{ item.selected_size }}">
                                         <div class="flex items-center">
                                         <button type="submit" name="action" value="decrease" class="px-2 py-1 text-sm font-bold uppercase">
                                             <i class="fas fa-minus text-[10px]"></i>

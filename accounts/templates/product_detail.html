@@ -133,38 +133,33 @@
                     </div>
                 </div>
 
-                <form class="mt-10" action="{% url 'cart_add' product.id %}" method="POST">
-                    {% csrf_token %}
-                    
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-sm font-bold text-gray-900 uppercase">Select Size</h3>
-                        <a href="#" class="text-sm font-medium text-gray-500 underline">Size guide</a>
-                    </div>
+ <form id="add-to-cart-form" action="{% url 'cart_add' product.id %}" method="POST">
+    {% csrf_token %}
+    
+    <input type="hidden" name="size" id="selected-size" value="" required>
+    <p id="size-error" class="text-red-500 text-sm mb-2 hidden">Please select a size before adding to cart.</p>
 
-                    <div class="grid grid-cols-4 gap-2">
-                       
-                        <label class="group relative border rounded-lg py-3 flex items-center justify-center text-sm font-bold uppercase cursor-pointer hover:bg-gray-50 focus:outline-none border-gray-200">
-                            {% for size in product.sizes.all %}
-                <button type="submit" 
-                        name="size" 
-                        value="{{ size.name }}" 
-                        class="size-btn">
-                    {{ size.name }}
-                </button>
-            {% endfor %}
-                        </label>
-                     
-                    </div>
+    <div class="grid grid-cols-4 gap-2">
+        {% for size in product.sizes.all %}
+            <button type="button" 
+                    class="size-btn border rounded-lg py-3 flex items-center justify-center"
+                    onclick="selectSize(this, '{{ size.name }}')">
+                {{ size.name }}
+            </button>
+        {% endfor %}
+    </div>
 
-                    <div class="mt-10 flex flex-col space-y-4">
-                        <button type="submit" class="w-full bg-black text-white rounded-full py-5 text-lg font-bold hover:bg-zinc-800 transition shadow-xl">
-                            Add to Cart
-                        </button>
+    <button type="submit" class="w-full bg-black text-white rounded-full py-3 mt-4">
+        Add to Cart
+    </button>
+</form>
+
+
                         <button type="button" class="w-full bg-white border border-gray-200 text-black rounded-full py-5 text-lg font-bold hover:border-black transition flex items-center justify-center">
                             Favorite <span class="ml-2">♡</span>
                         </button>
                     </div>
-                </form>
+              
 
                 <div class="mt-8 grid grid-cols-1 gap-4 border-t border-gray-100 pt-8">
                     <div class="flex items-start space-x-3">
@@ -179,27 +174,65 @@
         </div>
     </main>
 
-    <script>
-        function changeImage(src, element) {
-            const mainImg = document.getElementById('main-display');
-            
-            // Subtle fade out
-            mainImg.style.opacity = '0.4';
-            
-            setTimeout(() => {
-                mainImg.src = src;
-                mainImg.style.opacity = '1';
-            }, 150);
+   <script>
+    
+    const hasSizes = "{{ product.sizes.exists|yesno:'true,false' }}" === "true";
 
-            // Toggle border classes
-            document.querySelectorAll('.thumb-box').forEach(box => {
-                box.classList.remove('thumb-active', 'border-black', 'border-2');
-                box.classList.add('border-gray-200', 'border');
-            });
-            
-            element.classList.add('thumb-active', 'border-black', 'border-2');
-            element.classList.remove('border-gray-200', 'border');
+    function selectSize(element, sizeValue) {
+      
+        document.getElementById('selected-size').value = sizeValue;
+        
+        
+        const errorMsg = document.getElementById('size-error');
+        if (errorMsg) {
+            errorMsg.classList.add('hidden');
         }
-    </script>
+
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.classList.remove('border-black', 'bg-gray-100');
+        });
+        element.classList.add('border-black', 'bg-gray-100');
+    }
+
+    // Intercept form submission
+    document.getElementById('add-to-cart-form').onsubmit = function(e) {
+        const selectedSize = document.getElementById('selected-size').value;
+        
+        // If product HAS sizes but NONE are selected, stop the form
+        if (hasSizes && !selectedSize) {
+            e.preventDefault(); // Stop form from submitting
+            const errorMsg = document.getElementById('size-error');
+            if (errorMsg) {
+                errorMsg.classList.remove('hidden'); // Show the message
+            } else {
+                alert("Please select a size"); // Fallback safety
+            }
+            return false;
+        }
+    };
+
+
+    function changeImage(src, element) {
+        const mainImg = document.getElementById('main-display');
+        
+        // Subtle fade out
+        mainImg.style.opacity = '0.4';
+        
+        setTimeout(() => {
+            mainImg.src = src;
+            mainImg.style.opacity = '1';
+        }, 150);
+
+        // Toggle border classes
+        document.querySelectorAll('.thumb-box').forEach(box => {
+            box.classList.remove('thumb-active', 'border-black', 'border-2');
+            box.classList.add('border-gray-200', 'border');
+        });
+        
+        element.classList.add('thumb-active', 'border-black', 'border-2');
+        element.classList.remove('border-gray-200', 'border');
+    }
+</script>
+    
 </body>
 </html>

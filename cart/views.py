@@ -40,22 +40,35 @@ def cart_add(request, product_id):
 def cart_update(request, product_id):
     cart = get_object_or_404(Cart, user=request.user)
     product = get_object_or_404(Product, id=product_id)
-    cart_item = CartItem.objects.filter(cart=cart, product=product).first()
     
+    # Get the size from the POST request
+    selected_size = request.POST.get('size')
+    if not selected_size: selected_size = None
+    
+    # 1. Look for the item. Filter is safer than get.
+    cart_item = CartItem.objects.filter(
+        cart=cart, 
+        product=product, 
+        selected_size=selected_size # Ensure this field name matches your Model!
+    ).first()
+
     if request.method == 'POST':
+        # 2. Safety Check: If the item wasn't found, redirect back to cart
+        if not cart_item:
+            return redirect('cart_detail')
+
         action = request.POST.get('action')
+        
         if action == 'increase':
             cart_item.quantity += 1
+            cart_item.save()
         elif action == 'decrease':
             cart_item.quantity -= 1
-
-        if cart_item.quantity > 0:
-            cart_item.save()
-        else:
-            cart_item.delete()
-        # Alternatively, if you want to set quantity directly:
-       
-            
+            if cart_item.quantity > 0:
+                cart_item.save()
+            else:
+                cart_item.delete()
+                
     return redirect('cart_detail')
 
 @login_required
