@@ -27,6 +27,11 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+class Size(models.Model):
+    name = models.CharField(max_length=50) 
+
+    def __str__(self):
+        return self.name
 
 class Product(models.Model):
 
@@ -55,10 +60,10 @@ class Product(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     updated = models.DateTimeField(auto_now=True)
-
+    sizes = models.ManyToManyField(Size, blank=True)
     old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     rating = models.IntegerField(default=5)
-    
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     @property
     def discount_percentage(self):
         if self.old_price and self.old_price > self.price:

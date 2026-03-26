@@ -25,9 +25,10 @@ def cart_add(request, product_id):
     else:
         cart, created = Cart.objects.get_or_create(user=request.user)
         product = get_object_or_404(Product, id=product_id)
+        size = request.POST.get('size')
     
     # Check if item already exists in cart to increment quantity
-        cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product)
+        cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product, selected_size=size)
     
         if not item_created:
             cart_item.quantity += 1
@@ -39,7 +40,7 @@ def cart_add(request, product_id):
 def cart_update(request, product_id):
     cart = get_object_or_404(Cart, user=request.user)
     product = get_object_or_404(Product, id=product_id)
-    cart_item = get_object_or_404(CartItem, cart=cart, product=product)
+    cart_item = CartItem.objects.filter(cart=cart, product=product).first()
     
     if request.method == 'POST':
         action = request.POST.get('action')

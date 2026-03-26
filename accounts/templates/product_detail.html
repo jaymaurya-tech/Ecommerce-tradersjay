@@ -15,6 +15,18 @@
         
         .thumb-active { border-color: black !important; border-width: 2px !important; }
         #main-display { transition: opacity 0.2s ease-in-out; }
+
+        .size-btn {
+        padding: 10px 20px;
+        border: 1px solid #ccc;
+        background: #fff;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .size-btn:hover {
+        background: #000;
+        color: #fff;
+    }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="sty>lesheet" href="{% static 'css/style.css' %}">
@@ -130,12 +142,18 @@
                     </div>
 
                     <div class="grid grid-cols-4 gap-2">
-                        {% for i in "123456" %}
+                       
                         <label class="group relative border rounded-lg py-3 flex items-center justify-center text-sm font-bold uppercase cursor-pointer hover:bg-gray-50 focus:outline-none border-gray-200">
-                            <input type="radio" name="size" value="{{ i }}" class="sr-only">
-                            <span>UK {{ i }}</span>
+                            {% for size in product.sizes.all %}
+                <button type="submit" 
+                        name="size" 
+                        value="{{ size.name }}" 
+                        class="size-btn">
+                    {{ size.name }}
+                </button>
+            {% endfor %}
                         </label>
-                        {% endfor %}
+                     
                     </div>
 
                     <div class="mt-10 flex flex-col space-y-4">

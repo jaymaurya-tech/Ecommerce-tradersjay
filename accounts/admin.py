@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django_otp.admin import OTPAdminSite
 from .models import Profile
-from products.models import Product, Category, Brand
+from products.models import Product, Category, Brand, Size
+from cart.models import Cart, CartItem
 from orders.models import Order, OrderItem
 from customers.models import Customer
 from django.utils.html import format_html
@@ -53,6 +54,9 @@ class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 5
 
+class SizeAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
 
 class ProductAdmin(admin.ModelAdmin):
 
@@ -68,6 +72,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
     
     inlines = [ProductImageInline]
+    filter_horizontal = ('sizes',)
     
     list_editable = ("category","price", "stock", "old_price")
 
@@ -207,12 +212,21 @@ class OrderItemAdmin(admin.ModelAdmin):
         "quantity",
         "price",
     )
- 
+class CartItemInline(admin.TabularInline):
+    model = CartItem
+    extra = 0
+    fields = ('product', 'selected_size', 'quantity') # Show these columns
+    readonly_fields = ('product', 'selected_size')
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ('user', 'created_at')
+    inlines = [CartItemInline]
 
 # 2. Register them using your custom admin_site
 admin_site.register(User, UserAdmin)  # Register the User model to manage users in the admin
 admin_site.register(Profile, ProfileAdmin)
 admin_site.register(Product, ProductAdmin)
+admin_site.register(Size, SizeAdmin)
+admin_site.register(Cart, CartItemAdmin)
 admin_site.register(Category, CategoryAdmin)
 admin_site.register(Brand, BrandAdmin)
 admin_site.register(Order, OrderAdmin)
