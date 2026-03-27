@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Cart, CartItem
-from products.models import Product
+from products.models import Product, Size
 
 @login_required
 def cart_detail(request):
@@ -25,10 +25,15 @@ def cart_add(request, product_id):
     else:
         cart, created = Cart.objects.get_or_create(user=request.user)
         product = get_object_or_404(Product, id=product_id)
-        size = request.POST.get('size')
+        size_id = request.POST.get('size')
+        if size_id:
+            selected_size = Size.objects.get(id=size_id).first()
+        else:
+            selected_size = product.default_size
+        
     
     # Check if item already exists in cart to increment quantity
-        cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product, selected_size=size)
+        cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product, selected_size=selected_size)
     
         if not item_created:
             cart_item.quantity += 1

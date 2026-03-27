@@ -150,7 +150,7 @@
                 </div>
 
                 <div class="mt-auto pt-4">
-    <a href="{% url 'cart_add' product.id %}" 
+    <a href="{% url 'cart_add' product.id %}?size={{ product.default_size.id|default:'' }}" 
    class="block w-full text-center bg-black text-white py-2.5 rounded-lg font-bold hover:bg-orange-700 transition duration-300">
     Add to Cart
 </a>
@@ -214,7 +214,7 @@
             <div class="w-full h-full flex items-center justify-center overflow-hidden">
                 <img src="{{ brand.logo.url }}" 
                      alt="{{ brand.name }} logo" 
-                     class="max-h-full max-w-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500 transform group-hover:scale-110">
+                     class="max-h-full max-w-full object-contain">
             </div>
             
             <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">

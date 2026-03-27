@@ -73,6 +73,10 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    
+    @property
+    def default_size(self):
+        return self.sizes.first() if self.sizes.exists() else None
 
 class ProductImage(models.Model):
     """These are the 4-5 extra images for the details page"""
