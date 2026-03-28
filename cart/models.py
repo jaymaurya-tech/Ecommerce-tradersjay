@@ -8,19 +8,30 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_total_price(self):
-        return sum(item.get_cost() for item in self.items.all())
+        return sum(item.item_total for item in self.items.all())
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name="items", on_delete=models.CASCADE)
     variant = models.ForeignKey('products.ProductVariant', on_delete=models.CASCADE, null=True, blank=True) # Link to the specific variant
     quantity = models.PositiveIntegerField(default=1)
 
+    class Meta:
+        unique_together = ('cart', 'variant')  # Ensure one entry per variant in the cart
+
     def __str__(self):
-        return f"{self.variant.product.name} ({self.variant.size})"
+        if self.variant:
+            product_name = self.variant.product.name if self.variant.product else "Unknown Product"
+            size_name = self.variant.size if self.variant.size else "Unknown Size"
+            return f"{product_name} ({size_name})"
+        return f"CartItem {self.id}"
 
     @property
     def item_total(self):
-        return self.variant.price * self.quantity
+        if self.variant:
+            return self.variant.price * self.quantity
+        return 0
 
     def get_cost(self):
-        return self.variant.price * self.quantity
+        if self.variant:
+            return self.item_total
+      

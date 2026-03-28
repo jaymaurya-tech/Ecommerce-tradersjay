@@ -144,14 +144,14 @@
     <div class="grid grid-cols-4 gap-2">
         {% for variant in product.variants.all %}
             <button type="button" 
-                    class="size-btn border rounded-lg py-3 flex flex-col items-center justify-center transition-all hover:border-black"
-                    data-variant-id="{{ variant.id }}"
-                    data-price="₹{{ variant.price }}"
-                    data-old-price="{% if variant.old_price %}₹{{ variant.old_price }}{% endif %}"
-                    onclick="selectVariant(this)">
-                <span class="font-bold">{{ variant.size.name }}</span>
-                <span class="text-xs text-gray-500">₹{{ variant.price }}</span>
-            </button>
+    class="size-btn border rounded-lg py-3 flex flex-col items-center justify-center transition-all"
+    data-variant-id="{{ variant.id }}" 
+    data-price="₹{{ variant.price }}"
+    data-old-price="{% if variant.old_price %}₹{{ variant.old_price }}{% endif %}"
+    onclick="selectVariant(this)">
+    <span class="font-bold">{{ variant.size.name }}</span>
+    <span class="text-xs text-gray-500">₹{{ variant.price }}</span>
+</button>
         {% endfor %}
     </div>
 
@@ -250,6 +250,8 @@
     // 3. Update the hidden input with the Variant ID
     const variantId = element.getAttribute('data-variant-id');
     document.getElementById('selected-variant-id').value = variantId;
+    const hiddenInput = document.getElementById('selected-variant-id');
+    hiddenInput.value = variantId;
 
     // 4. Update the displayed prices
     const newPrice = element.getAttribute('data-price');

@@ -27,11 +27,11 @@ def cart_add(request, product_id):
     
     cart, created = Cart.objects.get_or_create(user=request.user)
     product = get_object_or_404(Product, id=product_id)
-    size_id = request.POST.get('size')
+    variant_id = request.POST.get('variant_id')  # Get the selected variant ID from the form
 
     # Find the specific variant the user wants
-    if size_id:
-        variant = get_object_or_404(ProductVariant, product=product, size_id=size_id)
+    if variant_id:
+        variant = get_object_or_404(ProductVariant, product=product, id=variant_id)
     else:
         # Fallback to the first available variant (default)
         variant = product.variants.first()
@@ -55,14 +55,13 @@ def cart_update(request, variant_id):
     variant = get_object_or_404(ProductVariant, id=variant_id)
 
     # Get the size from the POST request
-    selected_size = request.POST.get('size')
-    if not selected_size: selected_size = None
+   # selected_size = request.POST.get('size')
+    #if not selected_size: selected_size = None
     
     # 1. Look for the item. Filter is safer than get.
     cart_item = CartItem.objects.filter(
         cart=cart, 
         variant=variant, 
-        selected_size=selected_size # Ensure this field name matches your Model!
     ).first()
 
     if request.method == 'POST':
