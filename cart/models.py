@@ -11,17 +11,16 @@ class Cart(models.Model):
         return sum(item.get_cost() for item in self.items.all())
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    selected_size = models.CharField(max_length=50, null=True, blank=True)
+    cart = models.ForeignKey(Cart, related_name="items", on_delete=models.CASCADE)
+    variant = models.ForeignKey('products.ProductVariant', on_delete=models.CASCADE, null=True, blank=True) # Link to the specific variant
     quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return f"{self.product.name} ({self.selected_size})"
+        return f"{self.variant.product.name} ({self.variant.size})"
 
     @property
     def item_total(self):
-        return self.product.price * self.quantity
+        return self.variant.price * self.quantity
 
     def get_cost(self):
-        return self.product.price * self.quantity
+        return self.variant.price * self.quantity

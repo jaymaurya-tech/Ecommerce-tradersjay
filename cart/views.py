@@ -1,10 +1,12 @@
+from itertools import product
+
 from django.shortcuts import render
 
 # Create your views here.
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Cart, CartItem
-from products.models import Product, Size
+from products.models import Product, ProductVariant
 
 @login_required
 def cart_detail(request):
@@ -22,30 +24,36 @@ def cart_detail(request):
 def cart_add(request, product_id):
     if not request.user.is_authenticated:
         return redirect('login')
+    
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    product = get_object_or_404(Product, id=product_id)
+    size_id = request.POST.get('size')
+
+    # Find the specific variant the user wants
+    if size_id:
+        variant = get_object_or_404(ProductVariant, product=product, size_id=size_id)
     else:
-        cart, created = Cart.objects.get_or_create(user=request.user)
-        product = get_object_or_404(Product, id=product_id)
-        size_id = request.POST.get('size')
-        if size_id:
-            selected_size = Size.objects.get(id=size_id).first()
-        else:
-            selected_size = product.default_size
+        # Fallback to the first available variant (default)
+        variant = product.variants.first()
+        if not variant:
+            return redirect('product_detail', pk=product_id) # Or handle "Out of Stock"
+
+    # Use the variant to find/create the cart item
+    cart_item, item_created = CartItem.objects.get_or_create(cart=cart, variant=variant)
+
+    if not item_created:
+        # Optional: Check if quantity exceeds variant.stock before incrementing
+        cart_item.quantity += 1
+        cart_item.save()
         
-    
-    # Check if item already exists in cart to increment quantity
-        cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product, selected_size=selected_size)
-    
-        if not item_created:
-            cart_item.quantity += 1
-            cart_item.save()
-        return redirect('cart_detail')
+    return redirect('cart_detail')
 
     
 @login_required
-def cart_update(request, product_id):
+def cart_update(request, variant_id):
     cart = get_object_or_404(Cart, user=request.user)
-    product = get_object_or_404(Product, id=product_id)
-    
+    variant = get_object_or_404(ProductVariant, id=variant_id)
+
     # Get the size from the POST request
     selected_size = request.POST.get('size')
     if not selected_size: selected_size = None
@@ -53,7 +61,7 @@ def cart_update(request, product_id):
     # 1. Look for the item. Filter is safer than get.
     cart_item = CartItem.objects.filter(
         cart=cart, 
-        product=product, 
+        variant=variant, 
         selected_size=selected_size # Ensure this field name matches your Model!
     ).first()
 
@@ -77,19 +85,25 @@ def cart_update(request, product_id):
     return redirect('cart_detail')
 
 @login_required
-def cart_remove(request, product_id):
+def cart_remove(request, variant_id):
     cart = get_object_or_404(Cart, user=request.user)
-    product = get_object_or_404(Product, id=product_id)
-    cart_item = get_object_or_404(CartItem, cart=cart, product=product)
+    variant = get_object_or_404(ProductVariant, id=variant_id)
+    cart_item = get_object_or_404(CartItem, cart=cart, variant=variant)
     cart_item.delete()
     
     return redirect('cart_detail')
 
+@login_required
 def cart_view(request):
-    cart_items = CartItem.objects.filter(user=request.user)
+    # Fetch cart items and "select_related" to optimize database hits
+    cart_items = CartItem.objects.filter(cart__user=request.user).select_related('variant', 'variant__product')
+    
+    subtotal = 0
     for item in cart_items:
-        item.item_total =item.product.price * item.quantity
-    subtotal = sum(item.product.price * item.quantity for item in cart_items)
+        # Price comes from the variant!
+        item.item_total = item.variant.price * item.quantity
+        subtotal += item.item_total
+    
     discount = subtotal * 0.10
     total = subtotal - discount
     
@@ -98,8 +112,7 @@ def cart_view(request):
         'subtotal': subtotal,
         'discount': discount,
         'total': total,
-
-        'shipping_progress': min((subtotal / 50) * 100, 100), # Progress bar %
+        'shipping_progress': min((subtotal / 50) * 100, 100),
         'free_shipping_unlocked': subtotal >= 50,
         'amount_to_free_shipping': max(50 - subtotal, 0)
     }

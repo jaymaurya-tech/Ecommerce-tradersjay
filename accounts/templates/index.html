@@ -100,7 +100,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {% for product in products %}
         <div class="group flex flex-col bg-white border border-gray-100 rounded-2xl p-4 hover:shadow-lg transition-shadow">
-            <a href="#" class="flex flex-col flex-grow">
+            <a href="{% url 'product_detail' product.id %}" class="flex flex-col flex-grow">
             <div class="object-contain rounded-2xl relative aspect-square flex items-center justify-center p-4 overflow-hidden">
                 {% if product.cover_image %}
                     <img src="{{ product.cover_image.url }}" class="w-full h-full object-contain">
@@ -131,10 +131,13 @@
                         <p class="text-xs text-gray-500 font-medium mt-1">{{ product.brand.name }}</p>
                     </div>
                     <div class="text-right whitespace-nowrap">
-                        <span class="text-lg font-bold text-gray-900">₹{{ product.price }}</span><br>
-                        {% if product.old_price %}
-                            <span class="text-sm text-gray-400 line-through ml-2">₹{{ product.old_price }}</span>
-                        {% endif %}
+                        <span class="text-lg font-bold text-gray-900">₹{{ product.starting_price }}</span><br>
+                        {% if product.starting_old_price %}
+                            <span class="text-sm text-gray-400 line-through ml-2">₹{{ product.starting_old_price }}</span>
+                        {% endif %}<br>
+                        {% if product.default_size %}
+                    <span class="text-sm font-bold bg-gray-800 px-1 text-white"> {{ product.default_size.name }}</span>
+                {% endif %}
                     </div>
                 </div>
             </a>

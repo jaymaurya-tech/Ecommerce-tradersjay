@@ -48,11 +48,15 @@ try:
 except admin.sites.NotRegistered:
     pass
 
-from products.models import Product, ProductImage
+from products.models import Product, ProductImage, ProductVariant, Size, Category, Brand
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 5
+class ProductVariantInline(admin.TabularInline):
+    model = ProductVariant
+    extra = 1  # Number of empty rows to show by default
+    fields = ('size', 'price', 'old_price', 'stock')
 
 class SizeAdmin(admin.ModelAdmin):
     list_display = ('name',)
@@ -65,16 +69,15 @@ class ProductAdmin(admin.ModelAdmin):
         "name",
         "brand",
         "category",
-        "price",
-        "stock",
+        "get_price_range",
         "updated",
-        "old_price",
+        
     )
     
-    inlines = [ProductImageInline]
-    filter_horizontal = ('sizes',)
+    inlines = [ProductImageInline, ProductVariantInline]
+   # filter_horizontal = ('sizes',)
     
-    list_editable = ("category","price", "stock", "old_price")
+
 
     list_filter = (
         "brand",
@@ -91,7 +94,15 @@ class ProductAdmin(admin.ModelAdmin):
     list_per_page = 20
 
     readonly_fields = ("image_preview",)
-
+    
+    # Optional: Helper to show a price range in the admin list
+    def get_price_range(self, obj):
+        variants = obj.variants.all()
+        if variants.exists():
+            prices = [v.price for v in variants]
+            return f"${min(prices)} - ${max(prices)}"
+        return "No variants"
+    get_price_range.short_description = 'Price Range'
 
     def image_preview(self, obj):
         if obj.cover_image:
@@ -212,11 +223,21 @@ class OrderItemAdmin(admin.ModelAdmin):
         "quantity",
         "price",
     )
+
+
 class CartItemInline(admin.TabularInline):
     model = CartItem
+    # Update these to match your new model structure
+    fields = ('variant', 'quantity', 'get_price') 
+    readonly_fields = ('get_price',) # 'product' and 'selected_size' were removed here
     extra = 0
-    fields = ('product', 'selected_size', 'quantity') # Show these columns
-    readonly_fields = ('product', 'selected_size')
+
+    # If you want to see the price in the inline
+    def get_price(self, obj):
+        if obj.variant:
+            return f"₹{obj.variant.price}"
+        return "-"
+    get_price.short_description = 'Unit Price'
 class CartItemAdmin(admin.ModelAdmin):
     list_display = ('user', 'created_at')
     inlines = [CartItemInline]

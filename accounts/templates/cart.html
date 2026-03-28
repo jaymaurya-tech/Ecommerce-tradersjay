@@ -69,24 +69,24 @@
                                         <h3 class="text-sm font-black uppercase tracking-tight">{{ item.product.name }}</h3>
                                         <p class="text-[11px] text-gray-400 uppercase mt-1">{{ item.product.brand }}</p>
                                         <p class="text-[11px] text-gray-500 mt-1 max-w-xs">{{ item.product.description }}</p>
-                                        {% if item.selected_size %}
-                    <span class="text-sm font-bold bg-gray-200 px-2 py-1 text-white"> {{ item.selected_size }}</span>
+                                        {% if item.variant.size %}
+                    <span class="text-sm font-bold bg-black px-2 py-1 text-white"> {{ item.variant.size.name }}</span>
                 {% else %}
                     <span class="text-sm text-gray-400">N/A</span>
                 {% endif %}
                                     </div>
                                     <div class="text-right">
-                                        <span class="text-sm font-black">₹{{ item.product.price }}</span><br>
-                                         {% if item.product.old_price %}
-                                          <span class="text-sm text-gray-400 line-through ml-2">₹{{ item.product.old_price }}</span>
+                                        <span class="text-sm font-black">₹{{ item.variant.price }}</span><br>
+                                         {% if item.variant.old_price %}
+                                          <span class="text-sm text-gray-400 line-through ml-2">₹{{ item.variant.old_price }}</span>
                                          {% endif %}
                                     </div>
                                 </div>
 
                                 <div class="flex justify-between items-end mt-4">
-                                    <form action="{% url 'cart_update' item.product.id %}" method="post" class="flex items-center">
+                                    <form action="{% url 'cart_update' item.variant.id %}" method="post" class="flex items-center">
                                         {% csrf_token %}
-                                        <input type="hidden" name="size" value="{{ item.selected_size }}">
+                                        <input type="hidden" name="size" value="{{ item.variant.size.id }}">
                                         <div class="flex items-center">
                                         <button type="submit" name="action" value="decrease" class="px-2 py-1 text-sm font-bold uppercase">
                                             <i class="fas fa-minus text-[10px]"></i>

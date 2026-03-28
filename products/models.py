@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
-
+from django.db.models import Min
 class Brand(models.Model):
 
     name = models.CharField(max_length=200)
@@ -49,9 +49,9 @@ class Product(models.Model):
         related_name="products"
     )
 
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+   # price = models.DecimalField(max_digits=10, decimal_places=2)
 
-    stock = models.PositiveIntegerField()
+   # stock = models.PositiveIntegerField()
 
     description = models.TextField(blank=True)
 
@@ -60,10 +60,43 @@ class Product(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     updated = models.DateTimeField(auto_now=True)
-    sizes = models.ManyToManyField(Size, blank=True)
-    old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+   # sizes = models.ManyToManyField(Size, blank=True)
+   # old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     rating = models.IntegerField(default=5)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+   
+
+    def __str__(self):
+        return self.name
+    
+    @property
+    def available_sizes(self):
+        return Size.objects.filter(productvariant__product=self).distinct()
+    
+    @property
+    def default_size(self):
+        first_variant = self.variants.first()
+        return first_variant.size if first_variant else None
+    @property
+    def starting_price(self):
+        # This looks at all related variants and finds the lowest price
+        lowest_price = self.variants.aggregate(Min('price'))['price__min']
+        return lowest_price or 0.00
+    @property
+    def starting_old_price(self):
+        lowest_old_price = self.variants.aggregate(Min('old_price'))['old_price__min']
+        return lowest_old_price or 0.00
+class ProductVariant(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
+    size = models.ForeignKey(Size, on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    stock = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        # Ensures you don't have two "Large" entries for the same "Blue Shirt"
+        unique_together = ('product', 'size')
+    
     @property
     def discount_percentage(self):
         if self.old_price and self.old_price > self.price:
@@ -72,12 +105,8 @@ class Product(models.Model):
         return None
 
     def __str__(self):
-        return self.name
+        return f"{self.product.name} - {self.size.name} (₹{self.price})"
     
-    @property
-    def default_size(self):
-        return self.sizes.first() if self.sizes.exists() else None
-
 class ProductImage(models.Model):
     """These are the 4-5 extra images for the details page"""
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
