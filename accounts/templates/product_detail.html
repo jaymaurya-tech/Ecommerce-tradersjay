@@ -92,11 +92,15 @@
                     <img id="main-display" src="{{ product.cover_image.url }}" 
                          class="w-full h-full object-contain p-10">
                     
-                    {% if product.discount_percentage %}
-                    <span class="absolute top-6 left-6 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                        Save {{ product.discount_percentage }}%
-                    </span>
-                    {% endif %}
+                   {% with variant=product.variants.all|dictsort:"price"|first %}
+    {% if variant.discount_percentage %}
+        <span class="absolute top-1 left-1 md:top-2 md:left-2 bg-red-600 text-white text-[10px] md:text-xs font-bold px-1.5 py-0.5 rounded">
+            {{ variant.discount_percentage }}% OFF
+        </span>
+    {% else %}
+        <span class="hidden"></span> 
+    {% endif %}
+{% endwith %}
 
                     <div class="absolute inset-y-0 left-4 flex items-center">
                         <button class="bg-white/80 p-2 rounded-full shadow hover:bg-white">←</button>
