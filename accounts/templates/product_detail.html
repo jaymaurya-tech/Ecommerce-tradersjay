@@ -155,11 +155,13 @@
                 {% for color_group in color_list %}
                     <button type="button" 
                         class="color-btn w-10 h-10 rounded-full border-2 border-gray-200 transition-all hover:scale-110"
-                        style="--bg-color: {{ color_group.grouper.hex_code }};"
+                        style="--bg-color: {{ color_group.grouper.name|lower }};
+                        background-color: var(--bg-color);"
                         data-color-id="{{ color_group.grouper.id }}"
                         onclick="filterSizes(this)"
                         title="{{ color_group.grouper.name }}">
                     </button>
+                    <p class="text-xs text-gray-500">{{ color_group.grouper.name }}</p>
                 {% endfor %}
             </div>
         </div>
