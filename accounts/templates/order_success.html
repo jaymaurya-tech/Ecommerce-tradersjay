@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success | Jay Traders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#F3F3F3] min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-2xl w-full bg-white border border-gray-100 shadow-2xl rounded-3xl overflow-hidden">
+        
+        <div class="bg-white p-10 text-center">
+            <div class="w-20 h-20 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-check text-3xl"></i>
+            </div>
+            
+            <h1 class="text-4xl font-black italic tracking-tighter uppercase mb-2">Thank you for your purchase</h1>
+            <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">
+                We've received your order and it will ship in 3-5 business days.
+            </p>
+            <div class="mt-4 inline-block bg-gray-100 px-4 py-1 rounded-full text-[10px] font-black uppercase">
+                Order Number: #JT{{ order.id|default:"B6CT3" }}
+            </div>
+        </div>
+
+        <div class="px-10 pb-10">
+            <div class="border border-gray-100 rounded-2xl p-6 bg-gray-50/50">
+                <h2 class="text-xs font-black uppercase mb-6 italic border-b border-gray-200 pb-2">Order Summary</h2>
+                
+                <div class="space-y-4">
+                    {% for item in order_items %}
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-white border border-gray-200 p-1 rounded">
+                                <img src="{{ item.variant.product.cover_image.url }}" class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <h4 class="text-[11px] font-black uppercase">{{ item.variant.product.name }}</h4>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase">{{ item.variant.size.name }} | QTY: {{ item.quantity }}</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold">₹{{ item.price }}</span>
+                    </div>
+                    {% empty %}
+                    <div class="flex justify-between items-center opacity-50">
+                        <span class="text-[11px] font-bold uppercase">Sample Product Name</span>
+                        <span class="text-xs font-bold">₹800</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-8 pt-4 border-t-2 border-dashed border-gray-200 flex justify-between items-center">
+                    <span class="text-sm font-black uppercase italic">Total Paid</span>
+                    <span class="text-xl font-black italic text-orange-500">₹{{ total_price|default:"1600" }}</span>
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                <a href="{% url 'home' %}" class="flex-1 text-center border-2 border-black py-3 rounded-xl text-xs font-black uppercase hover:bg-black hover:text-white transition duration-300">
+                    Back to Home
+                </a>
+                <button onclick="window.print()" class="flex-1 text-center bg-zinc-100 text-gray-600 py-3 rounded-xl text-xs font-black uppercase hover:bg-zinc-200 transition duration-300">
+                    <i class="fa-solid fa-print mr-2"></i>Print Receipt
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">
+    Thank you, {{ order.customer.name }}!
+</p>
+        </div>
+    </div>
+
+</body>
+</html>

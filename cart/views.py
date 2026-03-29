@@ -5,6 +5,8 @@ from django.shortcuts import render
 # Create your views here.
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+
+from customers.models import Customer
 from .models import Cart, CartItem
 from products.models import Product, ProductVariant
 
@@ -116,3 +118,93 @@ def cart_view(request):
         'amount_to_free_shipping': max(50 - subtotal, 0)
     }
     return render(request, 'cart.html', context)
+
+@login_required
+def checkout(request):
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_items = cart.items.all()
+    
+    # Check if cart is empty before allowing checkout
+    if not cart_items.exists():
+        return redirect('cart_detail')
+
+    subtotal = cart.get_total_price()
+    
+    context = {
+        'cart_items': cart_items,
+        'subtotal': subtotal,
+    }
+    return render(request, 'checkout.html', context)
+
+
+
+from orders.models import Order, OrderItem
+
+@login_required
+def process_order(request):
+    if request.method == 'POST':
+        # 1. Get the cart and check if it's empty
+        cart = get_object_or_404(Cart, user=request.user)
+        cart_items = cart.items.all()
+        
+        if not cart_items:
+            return redirect('cart_detail')
+
+        # 2. Extract details from the Checkout Form
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address')
+        city = request.POST.get('city')
+        # You can also capture 'payment_method' here if needed
+
+        # 3. Find or Update/Create Customer by email
+        # We use update_or_create to ensure the Customer has the latest info from the form
+        customer, created = Customer.objects.update_or_create(
+            email=request.user.email,
+            defaults={
+                'name': f"{first_name} {last_name}",
+                'phone': phone,
+                'address': address,
+                'city': city,
+            }
+        )
+
+        # 4. Create the Order
+        # This links the order to the Customer object we just found/created
+        order = Order.objects.create(
+            customer=customer,
+            total_price=cart.get_total_price(),
+            status="pending"
+        )
+
+        # 5. Move Cart Items to Order Items
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                variant=item.variant,
+                quantity=item.quantity,
+                price=item.variant.price  # Capture the price at the moment of purchase
+            )
+
+        # 6. Clear the User's Cart
+        cart_items.delete()
+
+        # 7. Redirect to the success page with the Order ID
+        return redirect('order_success', order_id=order.id)
+
+    # If it's a GET request, just send them back to checkout
+    return redirect('checkout')
+
+@login_required
+def order_success(request, order_id):
+    # Fetch the specific order for this user
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Passing the data your order_success.html expects:
+    context = {
+        'order': order,
+        'order_items': order.items.all(), # This uses the related_name="items"
+        'total_price': order.total_price,
+    }
+    return render(request, 'order_success.html', context)

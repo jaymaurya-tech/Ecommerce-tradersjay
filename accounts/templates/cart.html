@@ -143,9 +143,9 @@
                         <span class="text-2xl font-black italic">₹{{ total_price|default:"0.00" }}</span>
                     </div>
 
-                    <button class="w-full bg-black text-white py-5 font-black uppercase text-xs tracking-widest hover:bg-gray-800 transition-all shadow-xl active:scale-95">
+                    <a href="{% url 'checkout' %}" class="block w-full text-center bg-black text-white py-2 rounded-lg text-xs md:text-sm font-bold hover:bg-gray-800 transition duration-300">
                        Checkout
-                    </button>
+                    </a>
                     
                     <p class="text-[10px] text-center text-gray-400 uppercase mt-6 tracking-tight leading-relaxed">
                         Taxes and shipping calculated at checkout.<br>Secure payment gateway.

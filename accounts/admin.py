@@ -200,7 +200,14 @@ class CustomerAdmin(admin.ModelAdmin):
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
-    extra = 1
+    extra = 0
+    readonly_fields = ['get_product_name','quantity','price', 'variant']
+    fields = ['variant', 'quantity', 'price']
+    can_delete = False
+
+    def get_product_name(self, obj):
+        return obj.variant.product.name
+    get_product_name.short_description = 'Product'
 
 
 
@@ -225,14 +232,14 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 
-class OrderItemAdmin(admin.ModelAdmin):
+#class OrderItemAdmin(admin.ModelAdmin):
 
-    list_display = (
-        "order",
-        "product",
-        "quantity",
-        "price",
-    )
+   # list_display = (
+      #  "order",
+      #  "variant",
+      #  "quantity",
+      #  "price",
+   # )
 
 
 class CartItemInline(admin.TabularInline):
@@ -262,5 +269,5 @@ admin_site.register(Cart, CartItemAdmin)
 admin_site.register(Category, CategoryAdmin)
 admin_site.register(Brand, BrandAdmin)
 admin_site.register(Order, OrderAdmin)
-admin_site.register(OrderItem, OrderItemAdmin)
+#admin_site.register(OrderItem, OrderItemAdmin)
 admin_site.register(Customer, CustomerAdmin)

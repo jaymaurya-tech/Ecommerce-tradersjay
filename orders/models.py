@@ -47,10 +47,7 @@ class OrderItem(models.Model):
         related_name="items"
     )
 
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE
-    )
+    variant = models.ForeignKey('products.ProductVariant', on_delete=models.CASCADE, null=True, blank=True)
 
     quantity = models.PositiveIntegerField(default=1)
 
@@ -60,4 +57,4 @@ class OrderItem(models.Model):
     )
 
     def __str__(self):
-        return f"{self.product.name} ({self.quantity})"
+        return f"{self.variant.product.name} ({self.quantity})"
