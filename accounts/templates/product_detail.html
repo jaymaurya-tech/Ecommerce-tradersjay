@@ -143,23 +143,46 @@
     {% csrf_token %}
     
     <input type="hidden" name="variant_id" id="selected-variant-id" value="" required>
-    <p id="size-error" class="text-red-500 text-sm mb-2 hidden">Please select a size before adding to cart.</p>
+    <p id="size-error" class="text-red-500 text-sm mb-2 hidden">Please select a size/color before adding to cart.</p>
+    
+    {% if product.variants.all %}
+        {% regroup product.variants.all by color as color_list %}
+        
+        {% if color_list.0.grouper %} 
+        <div class="mt-6 mb-4">
+            <h3 class="text-sm font-bold text-gray-900 uppercase">Select Color</h3>
+            <div class="flex items-center space-x-3 mt-2">
+                {% for color_group in color_list %}
+                    <button type="button" 
+                        class="color-btn w-10 h-10 rounded-full border-2 border-gray-200 transition-all hover:scale-110"
+                        style="--bg-color: {{ color_group.grouper.hex_code }};"
+                        data-color-id="{{ color_group.grouper.id }}"
+                        onclick="filterSizes(this)"
+                        title="{{ color_group.grouper.name }}">
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    {% endif %}
 
+    <h3 class="text-sm font-bold text-gray-900 uppercase mb-2">Select Size</h3>
     <div class="grid grid-cols-4 gap-2">
         {% for variant in product.variants.all %}
             <button type="button" 
-    class="size-btn border rounded-lg py-3 flex flex-col items-center justify-center transition-all"
-    data-variant-id="{{ variant.id }}" 
-    data-price="₹{{ variant.price }}"
-    data-old-price="{% if variant.old_price %}₹{{ variant.old_price }}{% endif %}"
-    onclick="selectVariant(this)">
-    <span class="font-bold">{{ variant.size.name }}</span>
-    <span class="text-xs text-gray-500">₹{{ variant.price }}</span>
-</button>
+                class="size-btn {% if color_list.0.grouper %}hidden{% endif %} border rounded-lg py-3 flex flex-col items-center justify-center transition-all"
+                data-variant-id="{{ variant.id }}" 
+                data-color-link="{{ variant.color.id|default:'none' }}"
+                data-price="₹{{ variant.price }}"
+                data-old-price="{% if variant.old_price %}₹{{ variant.old_price }}{% endif %}"
+                onclick="selectVariant(this)">
+                <span class="font-bold">{{ variant.size.name }}</span>
+                <span class="text-xs text-gray-500">₹{{ variant.price }}</span>
+            </button>
         {% endfor %}
     </div>
 
-    <button type="submit" class="w-full bg-black text-white rounded-full py-3 mt-4 font-bold">
+    <button type="submit" class="w-full bg-black text-white rounded-full py-3 mt-6 font-bold uppercase tracking-wider hover:bg-gray-800 transition-colors">
         Add to Cart
     </button>
 </form>
@@ -184,47 +207,11 @@
     </main>
 
    <script>
-    
-    const hasSizes = "{{ product.sizes.exists|yesno:'true,false' }}" === "true";
-
-    function selectSize(element, sizeValue) {
-      
-        document.getElementById('selected-size').value = sizeValue;
-        
-        
-        const errorMsg = document.getElementById('size-error');
-        if (errorMsg) {
-            errorMsg.classList.add('hidden');
-        }
-
-        document.querySelectorAll('.size-btn').forEach(btn => {
-            btn.classList.remove('border-black', 'bg-gray-100');
-        });
-        element.classList.add('border-black', 'bg-gray-100');
-    }
-
-    // Intercept form submission
-    document.getElementById('add-to-cart-form').onsubmit = function(e) {
-        const selectedSize = document.getElementById('selected-size').value;
-        
-        // If product HAS sizes but NONE are selected, stop the form
-        if (hasSizes && !selectedSize) {
-            e.preventDefault(); // Stop form from submitting
-            const errorMsg = document.getElementById('size-error');
-            if (errorMsg) {
-                errorMsg.classList.remove('hidden'); // Show the message
-            } else {
-                alert("Please select a size"); // Fallback safety
-            }
-            return false;
-        }
-    };
-
-
+    // 1. IMAGE GALLERY LOGIC
     function changeImage(src, element) {
         const mainImg = document.getElementById('main-display');
-        
-        // Subtle fade out
+        if (!mainImg) return;
+
         mainImg.style.opacity = '0.4';
         
         setTimeout(() => {
@@ -232,7 +219,6 @@
             mainImg.style.opacity = '1';
         }, 150);
 
-        // Toggle border classes
         document.querySelectorAll('.thumb-box').forEach(box => {
             box.classList.remove('thumb-active', 'border-black', 'border-2');
             box.classList.add('border-gray-200', 'border');
@@ -241,41 +227,85 @@
         element.classList.add('thumb-active', 'border-black', 'border-2');
         element.classList.remove('border-gray-200', 'border');
     }
-    function selectVariant(element) {
-    // 1. Remove active styling from all buttons
-    document.querySelectorAll('.size-btn').forEach(btn => {
-        btn.classList.remove('border-black', 'bg-gray-50', 'ring-2', 'ring-black');
-        btn.classList.add('border-gray-200');
-    });
 
-    // 2. Add active styling to clicked button
-    element.classList.add('border-black', 'bg-gray-50', 'ring-2', 'ring-black');
+    // 2. COLOR & SIZE FILTERING LOGIC
+    function filterSizes(element) {
+        const colorId = element.getAttribute('data-color-id');
 
-    // 3. Update the hidden input with the Variant ID
-    const variantId = element.getAttribute('data-variant-id');
-    document.getElementById('selected-variant-id').value = variantId;
-    const hiddenInput = document.getElementById('selected-variant-id');
-    hiddenInput.value = variantId;
+        // Highlight selected color circle
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.classList.remove('ring-2', 'ring-black', 'ring-offset-2', 'border-black');
+        });
+        element.classList.add('ring-2', 'ring-black', 'ring-offset-2', 'border-black');
 
-    // 4. Update the displayed prices
-    const newPrice = element.getAttribute('data-price');
-    const newOldPrice = element.getAttribute('data-old-price');
-    
-    document.getElementById('display-price').innerText = newPrice;
-    document.getElementById('display-old-price').innerText = newOldPrice || "";
+        // Reset Variant Selection when color changes
+        document.getElementById('selected-variant-id').value = "";
+        document.getElementById('size-error').classList.add('hidden');
 
-    // 5. Hide error message if it was showing
-    document.getElementById('size-error').classList.add('hidden');
-}
-
-// Form validation to ensure a size is picked
-document.getElementById('add-to-cart-form').onsubmit = function(e) {
-    if (!document.getElementById('selected-variant-id').value) {
-        e.preventDefault();
-        document.getElementById('size-error').classList.remove('hidden');
-        return false;
+        // Show only sizes that belong to this color
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.classList.remove('border-black', 'bg-gray-50', 'ring-2'); // Reset styles
+            if (btn.getAttribute('data-color-link') === colorId) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        });
     }
-};
+
+    // 3. VARIANT SELECTION (FINALIZE CHOICE)
+    function selectVariant(element) {
+        // Highlight selected size button
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.classList.remove('border-black', 'bg-gray-50', 'ring-2', 'ring-black');
+            btn.classList.add('border-gray-200');
+        });
+        element.classList.add('border-black', 'bg-gray-50', 'ring-2', 'ring-black');
+
+        // Get data from attributes
+        const variantId = element.getAttribute('data-variant-id');
+        const newPrice = element.getAttribute('data-price');
+        const newOldPrice = element.getAttribute('data-old-price');
+
+        // Update Hidden Input
+        document.getElementById('selected-variant-id').value = variantId;
+
+        // Update UI Prices
+        const priceDisplay = document.getElementById('display-price');
+        const oldPriceDisplay = document.getElementById('display-old-price');
+        
+        if (priceDisplay) priceDisplay.innerText = newPrice;
+        if (oldPriceDisplay) oldPriceDisplay.innerText = newOldPrice || "";
+
+        // Hide error message
+        document.getElementById('size-error').classList.add('hidden');
+    }
+
+    // 4. FORM VALIDATION
+    document.getElementById('add-to-cart-form').onsubmit = function(e) {
+        const variantValue = document.getElementById('selected-variant-id').value;
+        
+        if (!variantValue) {
+            e.preventDefault();
+            const errorMsg = document.getElementById('size-error');
+            if (errorMsg) {
+                errorMsg.classList.remove('hidden');
+                errorMsg.innerText = "Please select a color and size first.";
+            }
+            return false;
+        }
+    };
+
+    // 5. AUTO-SELECT LOGIC (Optional but recommended)
+    window.onload = function() {
+        const firstColor = document.querySelector('.color-btn');
+        if (firstColor) {
+            filterSizes(firstColor); // Pre-show sizes for the first color
+        } else {
+            // If no colors exist, make sure sizes aren't hidden
+            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('hidden'));
+        }
+    };
 </script>
     
 </body>

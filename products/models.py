@@ -86,16 +86,24 @@ class Product(models.Model):
     def starting_old_price(self):
         lowest_old_price = self.variants.aggregate(Min('old_price'))['old_price__min']
         return lowest_old_price or 0.00
+class Color(models.Model):
+    name = models.CharField(max_length=50) # e.g., "Royal Blue"
+    hex_code = models.CharField(max_length=7, help_text="e.g., #0000FF") # For the button circles
+
+    def __str__(self):
+        return self.name    
+    
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
     size = models.ForeignKey(Size, on_delete=models.CASCADE)
+    color = models.ForeignKey(Color, on_delete=models.CASCADE, null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     old_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     stock = models.PositiveIntegerField(default=0)
 
     class Meta:
         # Ensures you don't have two "Large" entries for the same "Blue Shirt"
-        unique_together = ('product', 'size')
+        unique_together = ('product', 'size', 'color')
     
     @property
     def discount_percentage(self):
@@ -106,7 +114,9 @@ class ProductVariant(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - {self.size.name} (₹{self.price})"
-    
+
+
+
 class ProductImage(models.Model):
     """These are the 4-5 extra images for the details page"""
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')

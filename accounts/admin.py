@@ -48,7 +48,7 @@ try:
 except admin.sites.NotRegistered:
     pass
 
-from products.models import Product, ProductImage, ProductVariant, Size, Category, Brand
+from products.models import Product, ProductImage, ProductVariant, Size, Category, Brand, Color
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
@@ -56,11 +56,21 @@ class ProductImageInline(admin.TabularInline):
 class ProductVariantInline(admin.TabularInline):
     model = ProductVariant
     extra = 1  # Number of empty rows to show by default
-    fields = ('size', 'price', 'old_price', 'stock')
+    fields = ('size', 'price', 'old_price','color', 'stock')
 
 class SizeAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
+
+class ColorAdmin(admin.ModelAdmin):
+    list_display = ('name','hex_code')
+    search_fields = ('name','hex_code')
+    def color_preview(self, obj):
+        return format_html(
+            '<div style="width: 20px; height: 20px; background-color: {}; border: 1px solid #000;"></div>',
+            obj.hex_code
+        )
+    color_preview.short_description = 'Preview'
 
 class ProductAdmin(admin.ModelAdmin):
 
@@ -247,6 +257,7 @@ admin_site.register(User, UserAdmin)  # Register the User model to manage users 
 admin_site.register(Profile, ProfileAdmin)
 admin_site.register(Product, ProductAdmin)
 admin_site.register(Size, SizeAdmin)
+admin_site.register(Color, ColorAdmin)
 admin_site.register(Cart, CartItemAdmin)
 admin_site.register(Category, CategoryAdmin)
 admin_site.register(Brand, BrandAdmin)
