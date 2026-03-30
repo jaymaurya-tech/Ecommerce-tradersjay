@@ -160,6 +160,8 @@ def process_order(request):
         phone = request.POST.get('phone')
         address = request.POST.get('address')
         city = request.POST.get('city')
+        state = request.POST.get('state')
+        pincode = request.POST.get('pincode')
         # You can also capture 'payment_method' here if needed
 
         # 3. Find or Update/Create Customer by email
@@ -171,6 +173,8 @@ def process_order(request):
                 'phone': phone,
                 'address': address,
                 'city': city,
+                'state': state,
+                'pincode': pincode,
             }
         )
 
@@ -179,7 +183,10 @@ def process_order(request):
         order = Order.objects.create(
             customer=customer,
             total_price=cart.get_total_price(),
-            status="pending"
+            status="pending",
+            state="state",
+            city="city",
+            pincode="pincode",
         )
 
         # 5. Move Cart Items to Order Items

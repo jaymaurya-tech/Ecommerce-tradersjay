@@ -34,6 +34,21 @@ class Order(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     updated = models.DateTimeField(auto_now=True)
+    phone = models.CharField(max_length=15, null=True, blank=True)
+
+    address=models.CharField(max_length=100, null=True, blank=True)    
+    city=models.CharField(max_length=100, null=True, blank=True)
+    state=models.CharField(max_length=100, null=True, blank=True)
+    pincode=models.CharField(max_length=20, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk and self.customer:
+            self.city = self.customer.city
+            self.phone = self.customer.phone
+            self.state = self.customer.state
+            self.pincode = self.customer.pincode
+            self.address = self.customer.address
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Order #{self.id}"

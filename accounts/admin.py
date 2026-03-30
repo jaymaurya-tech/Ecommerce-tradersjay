@@ -219,6 +219,7 @@ class OrderAdmin(admin.ModelAdmin):
         "id",
         "customer",
         "status",
+        "phone",
         "total_price",
         "created",
         "print_invoice_button"
@@ -229,6 +230,8 @@ class OrderAdmin(admin.ModelAdmin):
         "status",
         "created",
     )
+
+    fields = ('customer', 'status', 'total_price', 'print_invoice_button','phone' ,'address' ,'state', 'city', 'pincode')
 
     search_fields = ("customer__name", )
 
