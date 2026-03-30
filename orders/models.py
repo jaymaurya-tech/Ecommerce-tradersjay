@@ -55,6 +55,9 @@ class OrderItem(models.Model):
         max_digits=10,
         decimal_places=2
     )
+    @property
+    def item_total(self):
+        return self.price * self.quantity
 
     def __str__(self):
         return f"{self.variant.product.name} ({self.quantity})"

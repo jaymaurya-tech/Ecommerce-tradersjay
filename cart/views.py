@@ -139,6 +139,10 @@ def checkout(request):
 
 
 from orders.models import Order, OrderItem
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from orders.utils import render_to_pdf
 
 @login_required
 def process_order(request):
@@ -208,3 +212,22 @@ def order_success(request, order_id):
         'total_price': order.total_price,
     }
     return render(request, 'order_success.html', context)
+
+@staff_member_required
+def admin_order_pdf(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    data = {
+        'order': order,
+        'order_items': order.items.all(), # Ensure this matches your related_name
+        'total_price': order.total_price,
+    }
+    
+    pdf = render_to_pdf('invoice_pdf.html', data)
+    
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = f"Invoice_{order.id}.pdf"
+        content = f"inline; filename={filename}" # 'inline' opens in browser, 'attachment' downloads
+        response['Content-Disposition'] = content
+        return response
+    return HttpResponse("Error generating PDF", status=400)

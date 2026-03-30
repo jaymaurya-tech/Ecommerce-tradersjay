@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+        @page {
+            size: a4 portrait;
+            margin: 1cm;
+        }
+
+        body {
+            /* Helvetica/Arial are standard, but ensure UTF-8 support */
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #EEE;
+            padding-bottom: 10px;
+        }
+
+        .info {
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background-color: #f9fafb;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #333;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #EEE;
+            font-size: 12px;
+            vertical-align: top;
+        }
+
+        .total-section {
+            text-align: right;
+            margin-top: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>JAY TRADERS</h1>
+        <p>Official Purchase Invoice</p>
+    </div>
+
+    <div class="info">
+        <p><strong>Order Number:</strong> #{{ order.id }}</p>
+        <p><strong>Customer:</strong> {{ order.user.username }}</p>
+        <p><strong>Date:</strong> {{ order.created_at|date:"d M Y" }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 45%;">Product</th>
+                <th style="width: 10%;">Qty</th>
+                <th style="width: 20%;">Price</th>
+                <th style="width: 25%;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order_items %}
+            <tr>
+                <td>{{ item.variant.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>&#8377; {{ item.price }}</td>
+                <td>&#8377; {{ item.item_total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        Total Amount Paid: &#8377; {{ total_price }}
+    </div>
+</body>
+</html>

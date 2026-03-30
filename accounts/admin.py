@@ -9,6 +9,8 @@ from cart.models import Cart, CartItem
 from orders.models import Order, OrderItem
 from customers.models import Customer
 from django.utils.html import format_html
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 class OTPAdmin(OTPAdminSite):
     login_template = 'login.html'
@@ -219,7 +221,9 @@ class OrderAdmin(admin.ModelAdmin):
         "status",
         "total_price",
         "created",
+        "print_invoice_button"
     )
+    readonly_fields = ('total_price', 'print_invoice_button')
 
     list_filter = (
         "status",
@@ -229,6 +233,19 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ("customer__name", )
 
     inlines = [OrderItemInline]
+
+    def print_invoice_button(self, obj):
+        if obj.id:
+            url = reverse('admin_order_pdf', args=[obj.id])
+            return mark_safe(f'''
+            <a href="{url}" class="button" 
+               style="background-color: #e11d48; color: white; padding: 5px 12px; border-radius: 5px; text-decoration: none;">
+               <i class="fas fa-file-pdf"></i> Download PDF
+            </a>
+        ''')
+        return "-"
+
+    
 
 
 
