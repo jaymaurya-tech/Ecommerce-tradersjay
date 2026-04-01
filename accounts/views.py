@@ -169,21 +169,58 @@ def resend_otp(request):
 
 
 
+
+from customers.models import Customer
+from orders.models import Order
+
 @login_required
 def profile_view(request):
+    user = request.user
+    
+    # 1. FIND THE LINK: Look for a Customer record that belongs to this User
+    # We first try to find by the 'user' field, then fallback to 'email' 
+    customer = Customer.objects.filter(user=user).first()
+    
+    if not customer:
+        customer = Customer.objects.filter(email=user.email).first()
+        if customer:
+            # Found them by email! Let's link them to the User account permanently
+            customer.user = user
+            customer.save()
+
+    # 2. HANDLE PROFILE UPDATES (POST)
     if request.method == 'POST':
-        user = request.user
         user.email = request.POST.get('email')
+        user.username = request.POST.get('username', user.username)
         user.save()
         
-        # If you have a custom Profile model:
-        profile = user.profile
-        profile.phone = request.POST.get('phone')
-        profile.address = request.POST.get('address')
-        profile.save()
-        messages.success(request, "Profile updated successfully!")
+        # Update Profile model (for phone/address)
+        profile = getattr(user, 'profile', None)
+        if profile:
+            profile.phone = request.POST.get('phone')
+            profile.address = request.POST.get('address')
+            profile.save()
         
-    return render(request, 'profile.html', {'user': request.user})
+        # Sync the Customer model too (so future orders have the right info)
+        if customer:
+            customer.phone = request.POST.get('phone')
+            customer.address = request.POST.get('address')
+            customer.save()
+
+        messages.success(request, "Profile updated successfully!")
+        return redirect('profile_view')
+
+    # 3. FETCH ORDERS: Now that we have the 'customer' object, get their orders
+    orders = []
+    if customer:
+        orders = Order.objects.filter(customer=customer).order_by('-created')
+
+    context = {
+        'user': user,
+        'orders': orders,
+        'customer': customer, # Included for debugging/template use
+    }
+    return render(request, 'profile.html', context)
 
 
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView

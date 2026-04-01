@@ -179,6 +179,7 @@ class CustomerAdmin(admin.ModelAdmin):
 
     list_display = (
         "name",
+        "user",
         "email",
         "phone",
         "city",
@@ -190,6 +191,7 @@ class CustomerAdmin(admin.ModelAdmin):
         "name",
         "email",
         "phone",
+        "user__username",
     )
 
     list_filter = (
@@ -200,16 +202,32 @@ class CustomerAdmin(admin.ModelAdmin):
 
     list_per_page = 20
 
+    def user_link(self, obj):
+        if obj.user:
+            url = reverse('admin:auth_user_change', args=[obj.user.id])
+            return format_html('<a href="{}">{}</a>', url, obj.user.username)
+        return "No User Linked"
+    user_link.short_description = 'Linked Account'
+
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
-    readonly_fields = ['get_product_name','quantity','price', 'variant']
-    fields = ['variant', 'quantity', 'price']
+    readonly_fields = ['get_product_name', 'variant', 'get_size', 'get_color', 'quantity', 'price']
+    fields = ['get_product_name', 'variant', 'get_size', 'get_color', 'quantity', 'price']
     can_delete = False
 
     def get_product_name(self, obj):
-        return obj.variant.product.name
-    get_product_name.short_description = 'Product'
+        return obj.variant.product.name if obj.variant else "Unknown Product"
+    get_product_name.short_description = 'Product Name'
+
+    def get_size(self, obj):
+        return obj.variant.size.name if obj.variant.size else "-"
+    get_size.short_description = 'Size'
+
+    def get_color(self, obj):
+        return obj.variant.color.name if obj.variant.color else "-"
+    get_color.short_description = 'Color'
+
 
 
 
@@ -224,14 +242,25 @@ class OrderAdmin(admin.ModelAdmin):
         "created",
         "print_invoice_button"
     )
+
+    fieldsets = (
+        ('Order Status', {
+            'fields': ('status', 'total_price', 'print_invoice_button')
+        }),
+        ('Customer Info', {
+            'fields': ('customer', 'phone')
+        }),
+        ('Shipping Address', {
+            'fields': ('address', 'city', 'state', 'pincode'),
+            'classes': ('collapse',) # Optional: makes address collapsible
+        }),
+    )
     readonly_fields = ('total_price', 'print_invoice_button')
 
     list_filter = (
         "status",
         "created",
     )
-
-    fields = ('customer', 'status', 'total_price', 'print_invoice_button','phone' ,'address' ,'state', 'city', 'pincode')
 
     search_fields = ("customer__name", )
 
