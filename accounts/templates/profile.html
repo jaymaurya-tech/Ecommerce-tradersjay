@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,7 +20,7 @@
             <div class="flex items-center gap-4">
                 <button onclick="toggleMenu()" class="lg:hidden text-gray-600"><i class="fa-solid fa-bars text-xl"></i></button>
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-red-800 rounded-full flex items-center justify-center text-white"><i class="fa-solid fa-clover"></i></div>
+                    <img src="{% static 'images/logo.png' %}" alt="Jay Traders Logo" class="w-8 h-8 object-contain">
                     <span class="font-bold text-gray-800">Jay Traders</span>
                 </div>
             </div>

@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jay Traders | Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .bg-dark-green { background-color: #002d2d; } /* Customizing for that deep green look */
+
+     </style>   
+    <link rel="sty>lesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-white text-gray-900">
+
+ <nav class="bg-white border-b shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 sm:px-6 py-3">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div class="flex items-center gap-2">
+            <img src="{% static 'images/logo.png' %}" alt="Jay Traders Logo" class="w-8 h-8 object-contain">
+            <h2 class="text-xl sm:text-2xl font-bold text-orange-500 whitespace-nowrap">Jay Traders</h2>
+            
+            <button id="location-trigger" class="flex items-center text-sm text-gray-600 hover:text-orange-500 transition cursor-pointer">
+                <i class="fa-solid fa-location-dot mr-2"></i> 
+                <span id="location-text" class="truncate max-w-[80px] sm:max-w-[100px]">Kanpur, UP</span>
+            </button>
+            
+            </div>
+           <div class="flex-grow order-last sm:order-none w-full max-w-md lg:max-w-lg sm:w-auto mt-2 sm:mt-0 mx-4">
+    <form action="{% url 'search_products' %}" method="GET" class="relative w-full">
+        <input type="text" 
+               name="q" 
+               placeholder="Search products..." 
+               value="{{ query|default:'' }}"
+               class="w-full border border-gray-300 rounded-full py-2 px-4 outline-none focus:border-orange-500 transition">
+        
+        <button type="submit" class="absolute right-4 top-3 text-gray-400 hover:text-orange-500 transition">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+    </form>
+</div>
+            <div class="flex items-center gap-4">
+            <a href="{% url 'cart_detail' %}" class="relative text-xl sm:text-2xl hover:text-orange-500 transition">
+                <i class="fa-solid fa-cart-shopping"></i>
+                {% if global_cart_count > 0 %}
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          {{ global_cart_count }}
+        </span>
+        {% endif %}
+            </a>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="text-xl sm:text-2xl hover:text-orange-500" title="Account">
+                    <i class="fa-solid fa-user"></i> 
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="text-xl sm:text-2xl hover:text-orange-500" title="Login / Register">
+                    <i class="fa-solid fa-user"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+<main class="max-w-7xl mx-auto px-4 py-8">
+    <h4>
+        Results for: <span class="text-orange-500">"{{ query }}"</span>
+    </h4>
+
+    {% if products %}
+       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-6">
+        
+        {% for product in products %}
+        <div class="group flex flex-col bg-white border border-gray-100 rounded-xl md:rounded-2xl p-2 md:p-4 hover:shadow-lg transition-shadow h-full">
+            
+            <a href="{% url 'product_detail' product.id %}" class="relative aspect-square flex items-center justify-center p-2 overflow-hidden bg-gray-50 rounded-xl">
+                {% if product.cover_image %}
+                    <img src="{{ product.cover_image.url }}" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 text-xs">
+                        No Image    
+                    </div>
+                {% endif %}
+                
+               {% with variant=product.variants.all|dictsort:"price"|first %}
+    {% if variant.discount_percentage %}
+        <span class="absolute top-1 left-1 md:top-2 md:left-2 bg-red-600 text-white text-[10px] md:text-xs font-bold px-1.5 py-0.5 rounded">
+            {{ variant.discount_percentage }}% OFF
+        </span>
+    {% else %}
+        <span class="hidden"></span> 
+    {% endif %}
+{% endwith %}
+
+                <button class="absolute top-1 right-1 md:top-2 md:right-2 p-1.5 md:p-2 rounded-full bg-white/80 shadow-sm text-gray-400 hover:text-red-500 transition">
+                    <i class="fa-regular fa-heart text-sm md:text-lg"></i>
+                </button>
+            </a>
+
+            <div class="mt-3 flex flex-col flex-grow">
+                <a href="{% url 'product_detail' product.id %}" class="block">
+                    <h3 class="text-sm md:text-base font-bold text-gray-900 leading-tight line-clamp-2 ">
+                        {{ product.name }}
+                    </h3>
+                    <p class="text-[10px] md:text-xs text-gray-500 font-medium mt-1 uppercase tracking-wider">
+                        {{ product.brand.name }}
+                    </p>
+                </a>
+
+                <div class="mt-2 flex items-baseline flex-wrap gap-1">
+                    <a href="{% url 'product_detail' product.id %}" class="block">
+                    <span class="text-base md:text-lg font-black text-gray-900">₹{{ product.starting_price }}</span>
+                    {% if product.starting_old_price %}
+                        <span class="text-xs text-gray-400 line-through">₹{{ product.starting_old_price }}</span>
+                    {% endif %}
+                
+                     {% if product.variants.first.color %}
+                        <span class="text-[9px] md:text-[10px] font-bold bg-gray-100 border border-gray-200 px-1.5 py-0.5 text-gray-700 rounded uppercase">
+                            {{ product.variants.first.color.name }}
+                        </span>
+                    {% endif %}
+                    </a>
+                    </div>
+                    <div class="mt-2 flex items-baseline flex-wrap gap-1">
+                {% if product.default_size %}
+                    <div class="mt-1">
+                        <span class="text-[9px] md:text-[10px] font-bold bg-gray-100 border border-gray-200 px-2.5 py-0.5 text-gray-700 rounded uppercase">
+                            {{ product.default_size.name }}
+                        </span>
+                    </div>
+                {% endif %}
+
+                
+                    <div class="flex text-orange-400 space-x-0.5">
+                        <i class="fa-solid fa-star text-[10px]"></i>
+                        <i class="fa-solid fa-star text-[10px]"></i>
+                        <i class="fa-solid fa-star text-[10px]"></i>
+                        <i class="fa-solid fa-star text-[10px]"></i>
+                        <i class="fa-solid fa-star text-[10px]"></i>
+                    </div>
+                    <span class="hidden sm:inline text-gray-400 text-[10px] ml-1">(121)</span>
+                </div>
+
+                <div class="mt-auto pt-3">
+                    <a href="{% url 'cart_add' product.id %}?variant_id={{ product.variants.first.id }}" 
+                       class="block w-full text-center bg-black text-white py-2 rounded-lg text-xs md:text-sm font-bold hover:bg-gray-800 transition duration-300">
+                        Add to Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</main>
+   
+</body>
+</html>

@@ -21,7 +21,7 @@
     <div class="container mx-auto px-4 sm:px-6 py-3">
         <div class="flex items-center justify-between gap-4 flex-wrap">
             <div class="flex items-center gap-2">
-            <img src="static\images\logo.png" alt="Jay Traders Logo" class="w-8 h-8 object-contain">
+            <img src="{% static 'images/logo.png' %}" alt="Jay Traders Logo" class="w-8 h-8 object-contain">
             <h2 class="text-xl sm:text-2xl font-bold text-orange-500 whitespace-nowrap">Jay Traders</h2>
             
             <button id="location-trigger" class="flex items-center text-sm text-gray-600 hover:text-orange-500 transition cursor-pointer">
@@ -30,12 +30,19 @@
             </button>
             
             </div>
-            <div class="flex-grow order-last sm:order-none w-full max-w-md lg:max-w-lg sm:w-auto mt-2 sm:mt-0 mx-4">
-                <div class="relative w-full">
-                    <input type="text" placeholder="Search products..." class="w-full border border-gray-300 rounded-full py-2 px-4 outline-none focus:border-orange-500 transition">
-                    <i class="fa-solid fa-magnifying-glass absolute right-4 top-3 text-gray-400"></i>
-                </div>
-            </div>
+           <div class="flex-grow order-last sm:order-none w-full max-w-md lg:max-w-lg sm:w-auto mt-2 sm:mt-0 mx-4">
+    <form action="{% url 'search_products' %}" method="GET" class="relative w-full">
+        <input type="text" 
+               name="q" 
+               placeholder="Search products..." 
+               value="{{ query|default:'' }}"
+               class="w-full border border-gray-300 rounded-full py-2 px-4 outline-none focus:border-orange-500 transition">
+        
+        <button type="submit" class="absolute right-4 top-3 text-gray-400 hover:text-orange-500 transition">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+    </form>
+</div>
             <div class="flex items-center gap-4">
             <a href="{% url 'cart_detail' %}" class="relative text-xl sm:text-2xl hover:text-orange-500 transition">
                 <i class="fa-solid fa-cart-shopping"></i>
