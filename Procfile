@@ -1,0 +1,1 @@
+web: gunicorn jay_traders.wsgi

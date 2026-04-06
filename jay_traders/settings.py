@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -69,17 +70,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'jay_traders.wsgi.application'
 
-
+import dj_database_url
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Check if we are running on Railway (Railway sets a RAILWAY_ENVIRONMENT variable)
+if os.getenv('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=600)
+    }
+else:
+    # Use SQLite locally so you don't get that "Host name not known" error
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -119,6 +128,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_REDIRECT_URL = 'home'
@@ -136,7 +146,7 @@ JAZZMIN_SETTINGS = {
     "site_title": "Jay Traders Admin",
     "site_header": "Jay Traders",
     "site_brand": "Jay Traders",
-    "site_logo": "images\logo.png",
+    "site_logo": "{% static 'images/logo.png' %}",
     "welcome_sign": "Welcome to Jay Traders Admin",
     "show_sidebar": True,
     "navigation_expanded": True,
